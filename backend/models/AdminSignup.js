@@ -20,5 +20,4 @@ adminSchema.methods.changePassword = async function(newPassword) {
 };
 
 const AdminSignup = mongoose.model('AdminSignup', adminSchema);
-
-module.exports = { AdminSignup };
+module.exports = AdminSignup;

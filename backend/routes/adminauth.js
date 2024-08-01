@@ -4,14 +4,10 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const { jwtkey } = require('../keys');
-const { AdminSignup } = require('../models/AdminSignup');
-const mongoose = require('mongoose');
 
-// Predefined admin credentials
-const adminEmail = 'admin@nihilent.com';
-const adminPassword = '121212';
-const adminMobile = '9307741995';
-const adminCompanyName = 'Nihilent';
+const AdminSignup = require('../models/AdminSignup');
+
+const mongoose = require('mongoose');
 
 // Validation schema for admin login using Joi
 const loginSchema = Joi.object({
