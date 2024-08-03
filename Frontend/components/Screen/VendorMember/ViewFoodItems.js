@@ -9,17 +9,7 @@ export default function ViewFoodItems({ navigation }) {
   const [foodItems, setFoodItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedFoodItem, setSelectedFoodItem] = useState(null);
-  const [editForm, setEditForm] = useState({
-    name: '',
-    date: '',
-    price: '',
-    category: '',
-    description: '',
-    foodType: '',
-  });
-  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     fetchFoodItems();
@@ -55,62 +45,6 @@ export default function ViewFoodItems({ navigation }) {
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to delete food item');
-    }
-  };
-
-  const handleEdit = (foodItem) => {
-    setSelectedFoodItem(foodItem);
-    setEditForm({
-      name: foodItem.name,
-      date: foodItem.date,
-      price: foodItem.price.toString(),  // Convert number to string
-      category: foodItem.category,
-      description: foodItem.description,
-      foodType: foodItem.foodType,
-    });
-    setFormErrors({});
-    setEditModalVisible(true);
-  };
-
-  const validateForm = () => {
-    const errors = {};
-    if (!editForm.name.trim()) errors.name = 'Name is required';
-    if (!editForm.date.trim()) errors.date = 'Date is required';
-    if (!editForm.price.trim() || isNaN(parseFloat(editForm.price))) errors.price = 'Valid price is required';
-    if (!editForm.category.trim()) errors.category = 'Category is required';
-    if (!editForm.description.trim()) errors.description = 'Description is required';
-    if (!editForm.foodType.trim()) errors.foodType = 'Food type is required';
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSaveEdit = async () => {
-    if (!validateForm()) return;
-    
-    try {
-      const vendorId = await AsyncStorage.getItem('vendorMemberId');
-      if (vendorId === null) {
-        throw new Error('Vendor Member ID is not found');
-      }
-
-      const response = await axios.put(`http://192.168.0.114:3000/api/vendorMemberFoodRoutes/editfooditem/${selectedFoodItem._id}`, {
-        ...editForm,
-        price: parseFloat(editForm.price),
-        vendorId: vendorId, // Add vendorMemberId to request body
-      });
-
-      if (response.status === 200) {
-        const updatedFoodItems = foodItems.map(item =>
-          item._id === selectedFoodItem._id ? { ...item, ...editForm, price: parseFloat(editForm.price) } : item
-        );
-        Alert.alert('Food Item updated successfully');
-        setFoodItems(updatedFoodItems);
-        setEditModalVisible(false);
-      } else {
-        Alert.alert('Error', 'Failed to update food item');
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to update food item');
     }
   };
 
@@ -189,9 +123,6 @@ export default function ViewFoodItems({ navigation }) {
               </View>
 
               <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.editButton} onPress={() => handleEdit(item)}>
-                  <Text style={styles.buttonText}>Edit</Text>
-                </TouchableOpacity>
                 <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item)}>
                   <Text style={styles.buttonText}>Delete</Text>
                 </TouchableOpacity>
@@ -204,83 +135,6 @@ export default function ViewFoodItems({ navigation }) {
           <Text style={styles.noRecordText}>No Record Found</Text>
         </View>
       )}
-
-      {/* Edit Food Item Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={editModalVisible}
-        onRequestClose={() => setEditModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Edit Food Item</Text>
-            <TextInput
-              style={[styles.modalInput, formErrors.name && styles.inputError]}
-              placeholder="Name"
-              value={editForm.name}
-              onChangeText={text => setEditForm({ ...editForm, name: text })}
-            />
-            {formErrors.name && <Text style={styles.errorText}>{formErrors.name}</Text>}
-            
-            <TextInput
-              style={[styles.modalInput, formErrors.date && styles.inputError]}
-              placeholder="Date"
-              value={editForm.date}
-              onChangeText={text => setEditForm({ ...editForm, date: text })}
-            />
-            {formErrors.date && <Text style={styles.errorText}>{formErrors.date}</Text>}
-            
-            <TextInput
-              style={[styles.modalInput, formErrors.price && styles.inputError]}
-              placeholder="Price"
-              value={editForm.price}
-              keyboardType="numeric" // Ensures numeric input
-              onChangeText={text => setEditForm({ ...editForm, price: text })}
-            />
-            {formErrors.price && <Text style={styles.errorText}>{formErrors.price}</Text>}
-            
-            <TextInput
-              style={[styles.modalInput, formErrors.category && styles.inputError]}
-              placeholder="Category"
-              value={editForm.category}
-              onChangeText={text => setEditForm({ ...editForm, category: text })}
-            />
-            {formErrors.category && <Text style={styles.errorText}>{formErrors.category}</Text>}
-            
-            <TextInput
-              style={[styles.modalInput, formErrors.description && styles.inputError]}
-              placeholder="Description"
-              value={editForm.description}
-              onChangeText={text => setEditForm({ ...editForm, description: text })}
-            />
-            {formErrors.description && <Text style={styles.errorText}>{formErrors.description}</Text>}
-            
-            <TextInput
-              style={[styles.modalInput, formErrors.foodType && styles.inputError]}
-              placeholder="Food Type"
-              value={editForm.foodType}
-              onChangeText={text => setEditForm({ ...editForm, foodType: text })}
-            />
-            {formErrors.foodType && <Text style={styles.errorText}>{formErrors.foodType}</Text>}
-            
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.saveButton]}
-                onPress={handleSaveEdit}
-              >
-                <Text style={styles.buttonText}>Save</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setEditModalVisible(false)}
-              >
-                <Text style={styles.buttonText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
 
       {/* Delete Confirmation Modal */}
       <Modal
@@ -392,13 +246,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     marginTop: 8,
   },
-  editButton: {
-    backgroundColor: '#3498db',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 4,
-    marginRight: 8,
-  },
   deleteButton: {
     backgroundColor: '#e74c3c',
     paddingHorizontal: 12,
@@ -426,22 +273,6 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  modalInput: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 4,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-  inputError: {
-    borderColor: 'red',
-  },
-  errorText: {
-    color: 'red',
-    fontSize: 12,
     marginBottom: 10,
   },
   confirmText: {
