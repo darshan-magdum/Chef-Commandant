@@ -3,7 +3,7 @@ const router = express.Router();
 const FoodItem = require('../models/FoodItem'); // Adjust the path as per your project structure
 
 // Route to create a new food item
-router.post("/create", async (req, res) => {
+router.post("/createfoodtocollection", async (req, res) => {
   try {
     const { name, description, foodType } = req.body;
 
