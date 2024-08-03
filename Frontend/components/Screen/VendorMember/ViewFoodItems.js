@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Modal, TextInput, ScrollView, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, Alert, Modal } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -7,19 +7,9 @@ import axios from 'axios';
 export default function ViewFoodItems({ navigation }) {
 
   const [foodItems, setFoodItems] = useState([]);
-  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedFoodItem, setSelectedFoodItem] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  // State for editing form fields
-  const [editFoodItem, setEditFoodItem] = useState('');
-  const [editDate, setEditDate] = useState('');
-  const [editPrice, setEditPrice] = useState('');
-  console.log("editPrice",editPrice)
-  const [editCategory, setEditCategory] = useState('');
-  const [editDescription, setEditDescription] = useState('');
-  const [editFoodType, setEditFoodType] = useState('');
 
   // Fetch food items from API
   useEffect(() => {
@@ -28,10 +18,8 @@ export default function ViewFoodItems({ navigation }) {
 
   const fetchFoodItems = async () => {
     try {
-      const vendormemberId = await AsyncStorage.getItem('vendorMemberId');  // Retrieve user ID from AsyncStorage
-      console.log('Fetching user details for userId:', vendormemberId);
-      const response = await axios.get(`http://192.168.0.114:3000/api/vendorMemberFoodRoutes/getfooditems/${vendormemberId}`); // Fetch user details using user ID
-      console.log('Vendor Details:', response.data);
+      const vendormemberId = await AsyncStorage.getItem('vendorMemberId');
+      const response = await axios.get(`http://192.168.0.114:3000/api/vendorMemberFoodRoutes/getfooditems/${vendormemberId}`);
       if (response.status === 200) {
         setFoodItems(response.data);
       }
@@ -40,18 +28,7 @@ export default function ViewFoodItems({ navigation }) {
     }
   };
 
-  // Function to handle edit button click
-  const handleEdit = (foodItem) => {
-    setSelectedFoodItem(foodItem);
-    setEditFoodItem(foodItem.name);
-    setEditDate(foodItem.date);
-    setEditPrice(foodItem.price);
-    setEditCategory(foodItem.category);
-    setEditDescription(foodItem.description);
-    setEditFoodType(foodItem.foodType);
-    setEditModalVisible(true);
-  };
-
+  // Function to handle delete button click
   const handleDelete = (foodItem) => {
     setSelectedFoodItem(foodItem);
     setDeleteModalVisible(true);
@@ -74,48 +51,12 @@ export default function ViewFoodItems({ navigation }) {
     }
   };
 
-  // Function to confirm edit action
-// Inside handleConfirmEdit function
-const handleConfirmEdit = async () => {
-  try {
-    const vendormemberId = await AsyncStorage.getItem('vendorMemberId');
-    
-    const response = await axios.put(`http://192.168.0.114:3000/api/vendorMemberFoodRoutes/editfooditem/${selectedFoodItem._id}`, {
-      vendorId: vendormemberId,
-      name: editFoodItem,
-      date: editDate,
-      price: editPrice,
-      category: editCategory,
-      description: editDescription,
-      foodType: editFoodType
-    });
-
-    if (response.status === 200) {
-      const updatedItem = response.data; // Updated item from the API response
-      const updatedFoodItems = foodItems.map(item =>
-        item._id === updatedItem._id ? updatedItem : item
-      );
-      
-      setFoodItems(updatedFoodItems); // Update state with the updated items
-      Alert.alert('Success', 'Food Item updated successfully');
-      setEditModalVisible(false); // Close edit modal
-    } else {
-      Alert.alert('Error', 'Failed to update food item');
+  const filteredFoodItems = foodItems.filter(item => {
+    if (item.name && typeof item.name === 'string') {
+      return item.name.toLowerCase().startsWith(searchQuery.toLowerCase());
     }
-  } catch (error) {
-    Alert.alert('Error', 'Failed to update food item');
-  }
-};
-
-
-const filteredFoodItems = foodItems.filter(item => {
-  // Check if item.name exists and is a string
-  if (item.name && typeof item.name === 'string') {
-    return item.name.toLowerCase().startsWith(searchQuery.toLowerCase());
-  }
-  return false; // Exclude items without a valid name
-});
-
+    return false;
+  });
 
   return (
     <View style={styles.container}>
@@ -145,7 +86,7 @@ const filteredFoodItems = foodItems.filter(item => {
       {filteredFoodItems.length > 0 ? (
         <ScrollView style={styles.cardContainer}>
           {filteredFoodItems.map(item => (
-            <View key={item.id} style={styles.card}>
+            <View key={item._id} style={styles.card}>
               <View style={styles.row}>
                 <Text style={styles.label}>Food Item:</Text>
                 <Text style={styles.value}>{item.name}</Text>
@@ -177,9 +118,6 @@ const filteredFoodItems = foodItems.filter(item => {
               </View>
 
               <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.editButton} onPress={() => handleEdit(item)}>
-                  <Text style={styles.buttonText}>Edit</Text>
-                </TouchableOpacity>
                 <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item)}>
                   <Text style={styles.buttonText}>Delete</Text>
                 </TouchableOpacity>
@@ -193,86 +131,6 @@ const filteredFoodItems = foodItems.filter(item => {
         </View>
       )}
 
-      {/* Edit Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={editModalVisible}
-        onRequestClose={() => setEditModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Edit Item</Text>
-            <ScrollView>
-              {/* Food Item */}
-              <Text style={styles.inputLabel}>Food Item:</Text>
-              <TextInput
-                style={styles.inputField}
-                value={editFoodItem}
-                onChangeText={text => setEditFoodItem(text)}
-              />
-
-              {/* Date */}
-              <Text style={styles.inputLabel}>Date:</Text>
-              <TextInput
-                style={styles.inputField}
-                value={editDate}
-                onChangeText={text => setEditDate(text)}
-              />
-
-              {/* Price */}
-              <Text style={styles.inputLabel}>Price:</Text>
-              <TextInput
-                style={styles.inputField}
-                value={editPrice}
-                onChangeText={text => setEditPrice(text)}
-                keyboardType="numeric" 
-              />
-
-              {/* Category */}
-              <Text style={styles.inputLabel}>Category:</Text>
-              <TextInput
-                style={styles.inputField}
-                value={editCategory}
-                onChangeText={text => setEditCategory(text)}
-              />
-
-              {/* Description */}
-              <Text style={styles.inputLabel}>Description:</Text>
-              <TextInput
-                style={styles.inputField}
-                value={editDescription}
-                onChangeText={text => setEditDescription(text)}
-              />
-
-              {/* Food Type */}
-              <Text style={styles.inputLabel}>Food Type:</Text>
-              <TextInput
-                style={styles.inputField}
-                value={editFoodType}
-                onChangeText={text => setEditFoodType(text)}
-              />
-
-              {/* Buttons */}
-              <View style={styles.modalButtons}>
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.saveButton]}
-                  onPress={handleConfirmEdit}
-                >
-                  <Text style={styles.buttonText}>Save</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.cancelButton]}
-                  onPress={() => setEditModalVisible(false)}
-                >
-                  <Text style={styles.buttonText}>Cancel</Text>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
       {/* Delete Confirmation Modal */}
       <Modal
         animationType="slide"
@@ -285,7 +143,7 @@ const filteredFoodItems = foodItems.filter(item => {
             <Text style={styles.modalTitle}>Confirm Delete</Text>
             {selectedFoodItem && (
               <Text style={styles.confirmText}>
-                Are you sure you want to delete " {selectedFoodItem.name} "?
+                Are you sure you want to delete "{selectedFoodItem.name}"?
               </Text>
             )}
             <View style={styles.modalButtons}>
@@ -305,10 +163,10 @@ const filteredFoodItems = foodItems.filter(item => {
           </View>
         </View>
       </Modal>
-
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -352,17 +210,6 @@ const styles = StyleSheet.create({
     color: '#333',
     paddingHorizontal: 12,
   },
-  input: {
-    height: 60,
-    color: '#333',
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4,
-    marginTop: 8,
-    textAlignVertical: 'center', // Align text vertically centered
-    paddingVertical: 10, // Add padding to center the text vertically
-  },
   cardContainer: {
     paddingHorizontal: 24,
     paddingTop: 12,
@@ -394,13 +241,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     marginTop: 8,
   },
-  editButton: {
-    backgroundColor: '#3498db',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 4,
-    marginRight: 8,
-  },
   deleteButton: {
     backgroundColor: '#e74c3c',
     paddingHorizontal: 12,
@@ -430,18 +270,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  inputLabel: {
+  confirmText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 10,
-  },
-  inputField: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-    fontSize: 16,
+    marginBottom: 20,
   },
   modalButtons: {
     flexDirection: 'row',
@@ -460,10 +291,6 @@ const styles = StyleSheet.create({
   saveButton: {
     backgroundColor: '#007bff',
   },
-  formGroup: {
-    width: '100%',
-    marginBottom: 16,
-  },
   noRecordContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -471,6 +298,6 @@ const styles = StyleSheet.create({
   },
   noRecordText: {
     fontSize: 18,
-    color: '#999', // example color
+    color: '#999',
   },
 });
