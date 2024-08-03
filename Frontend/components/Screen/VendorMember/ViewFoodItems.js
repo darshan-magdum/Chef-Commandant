@@ -58,6 +58,14 @@ export default function ViewFoodItems({ navigation }) {
     return false;
   });
 
+  const formatDate = (dateString) => {
+    const dateObj = new Date(dateString);
+    const day = dateObj.getDate();
+    const month = dateObj.getMonth() + 1; // Months are zero indexed
+    const year = dateObj.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -94,8 +102,10 @@ export default function ViewFoodItems({ navigation }) {
 
               <View style={styles.row}>
                 <Text style={styles.label}>Date:</Text>
-                <Text style={styles.value}>{item.date}</Text>
+                <Text style={styles.value}>{formatDate(item.date)}</Text>
               </View>
+
+              
 
               <View style={styles.row}>
                 <Text style={styles.label}>Price:</Text>
