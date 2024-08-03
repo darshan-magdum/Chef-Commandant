@@ -5,11 +5,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 export default function ViewFoodItems({ navigation }) {
-
   const [foodItems, setFoodItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedFoodItem, setSelectedFoodItem] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchFoodItems();
@@ -40,6 +40,7 @@ export default function ViewFoodItems({ navigation }) {
         Alert.alert('Food Item deleted Successfully');
         setFoodItems(updatedFoodItems);
         setDeleteModalVisible(false);
+        setCurrentPage(1); // Reset to the first page after deletion
       } else {
         Alert.alert('Error', 'Failed to delete food item');
       }
@@ -54,6 +55,12 @@ export default function ViewFoodItems({ navigation }) {
     }
     return false;
   });
+
+  const totalPages = Math.ceil(filteredFoodItems.length / 1); // 1 record per page
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   const formatDate = (dateString) => {
     const dateObj = new Date(dateString);
@@ -90,51 +97,65 @@ export default function ViewFoodItems({ navigation }) {
       {/* Food Item Cards or No Record Found */}
       {filteredFoodItems.length > 0 ? (
         <ScrollView style={styles.cardContainer}>
-          {filteredFoodItems.map(item => (
-            <View key={item._id} style={styles.card}>
-              <View style={styles.row}>
-                <Text style={styles.label}>Food Item:</Text>
-                <Text style={styles.value}>{item.name}</Text>
-              </View>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Date:</Text>
-                <Text style={styles.value}>{formatDate(item.date)}</Text>
-              </View>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Price:</Text>
-                <Text style={styles.value}>{item.price}</Text>
-              </View>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Category:</Text>
-                <Text style={styles.value}>{item.category}</Text>
-              </View>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Description:</Text>
-                <Text style={styles.value}>{item.description}</Text>
-              </View>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Food Type:</Text>
-                <Text style={styles.value}>{item.foodType}</Text>
-              </View>
-
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item)}>
-                  <Text style={styles.buttonText}>Delete</Text>
-                </TouchableOpacity>
-              </View>
+          <View key={filteredFoodItems[currentPage - 1]._id} style={styles.card}>
+            <View style={styles.row}>
+              <Text style={styles.label}>Food Item:</Text>
+              <Text style={styles.value}>{filteredFoodItems[currentPage - 1].name}</Text>
             </View>
-          ))}
+
+            <View style={styles.row}>
+              <Text style={styles.label}>Date:</Text>
+              <Text style={styles.value}>{formatDate(filteredFoodItems[currentPage - 1].date)}</Text>
+            </View>
+
+            <View style={styles.row}>
+              <Text style={styles.label}>Price:</Text>
+              <Text style={styles.value}>{filteredFoodItems[currentPage - 1].price}</Text>
+            </View>
+
+            <View style={styles.row}>
+              <Text style={styles.label}>Category:</Text>
+              <Text style={styles.value}>{filteredFoodItems[currentPage - 1].category}</Text>
+            </View>
+
+            <View style={styles.row}>
+              <Text style={styles.label}>Description:</Text>
+              <Text style={styles.value}>{filteredFoodItems[currentPage - 1].description}</Text>
+            </View>
+
+            <View style={styles.row}>
+              <Text style={styles.label}>Food Type:</Text>
+              <Text style={styles.value}>{filteredFoodItems[currentPage - 1].foodType}</Text>
+            </View>
+
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(filteredFoodItems[currentPage - 1])}>
+                <Text style={styles.buttonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </ScrollView>
       ) : (
         <View style={styles.noRecordContainer}>
           <Text style={styles.noRecordText}>No Record Found</Text>
         </View>
       )}
+
+      {/* Pagination */}
+      <View style={styles.paginationContainer}>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <TouchableOpacity
+            key={index + 1}
+            style={[
+              styles.pageNumber,
+              currentPage === index + 1 && styles.currentPageNumber,
+            ]}
+            onPress={() => handlePageChange(index + 1)}
+          >
+            <Text style={styles.pageNumberText}>{index + 1}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
       {/* Delete Confirmation Modal */}
       <Modal
