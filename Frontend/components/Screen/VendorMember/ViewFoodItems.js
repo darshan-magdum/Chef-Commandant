@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     marginTop: 8,
   },
   editButton: {
@@ -370,6 +370,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 4,
+    marginRight: 8,
   },
   deleteButton: {
     backgroundColor: '#e74c3c',
