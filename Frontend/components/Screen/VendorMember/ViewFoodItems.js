@@ -9,9 +9,17 @@ export default function ViewFoodItems({ navigation }) {
   const [foodItems, setFoodItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedFoodItem, setSelectedFoodItem] = useState(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    date: '',
+    price: '',
+    category: '',
+    description: '',
+    foodType: '',
+  });
 
-  // Fetch food items from API
   useEffect(() => {
     fetchFoodItems();
   }, []);
@@ -28,13 +36,11 @@ export default function ViewFoodItems({ navigation }) {
     }
   };
 
-  // Function to handle delete button click
   const handleDelete = (foodItem) => {
     setSelectedFoodItem(foodItem);
     setDeleteModalVisible(true);
   };
-  
-  // Function to confirm delete action
+
   const handleConfirmDelete = async () => {
     try {
       const response = await axios.delete(`http://192.168.0.114:3000/api/vendorMemberFoodRoutes/deletefooditem/${selectedFoodItem._id}`);
@@ -48,6 +54,40 @@ export default function ViewFoodItems({ navigation }) {
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to delete food item');
+    }
+  };
+
+  const handleEdit = (foodItem) => {
+    setSelectedFoodItem(foodItem);
+    setEditForm({
+      name: foodItem.name,
+      date: foodItem.date,
+      price: foodItem.price.toString(),  // Convert number to string
+      category: foodItem.category,
+      description: foodItem.description,
+      foodType: foodItem.foodType,
+    });
+    setEditModalVisible(true);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      const response = await axios.put(`http://192.168.0.114:3000/api/vendorMemberFoodRoutes/editfooditem/${selectedFoodItem._id}`, {
+        ...editForm,
+        price: parseFloat(editForm.price),  // Convert string to number
+      });
+      if (response.status === 200) {
+        const updatedFoodItems = foodItems.map(item =>
+          item._id === selectedFoodItem._id ? { ...item, ...editForm, price: parseFloat(editForm.price) } : item
+        );
+        Alert.alert('Food Item updated successfully');
+        setFoodItems(updatedFoodItems);
+        setEditModalVisible(false);
+      } else {
+        Alert.alert('Error', 'Failed to update food item');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update food item');
     }
   };
 
@@ -105,8 +145,6 @@ export default function ViewFoodItems({ navigation }) {
                 <Text style={styles.value}>{formatDate(item.date)}</Text>
               </View>
 
-              
-
               <View style={styles.row}>
                 <Text style={styles.label}>Price:</Text>
                 <Text style={styles.value}>{item.price}</Text>
@@ -128,6 +166,9 @@ export default function ViewFoodItems({ navigation }) {
               </View>
 
               <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.editButton} onPress={() => handleEdit(item)}>
+                  <Text style={styles.buttonText}>Edit</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item)}>
                   <Text style={styles.buttonText}>Delete</Text>
                 </TouchableOpacity>
@@ -140,6 +181,71 @@ export default function ViewFoodItems({ navigation }) {
           <Text style={styles.noRecordText}>No Record Found</Text>
         </View>
       )}
+
+      {/* Edit Food Item Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={editModalVisible}
+        onRequestClose={() => setEditModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Edit Food Item</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Name"
+              value={editForm.name}
+              onChangeText={text => setEditForm({ ...editForm, name: text })}
+            />
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Date"
+              value={editForm.date}
+              onChangeText={text => setEditForm({ ...editForm, date: text })}
+            />
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Price"
+              value={editForm.price}
+              keyboardType="numeric" // Ensures numeric input
+              onChangeText={text => setEditForm({ ...editForm, price: text })}
+            />
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Category"
+              value={editForm.category}
+              onChangeText={text => setEditForm({ ...editForm, category: text })}
+            />
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Description"
+              value={editForm.description}
+              onChangeText={text => setEditForm({ ...editForm, description: text })}
+            />
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Food Type"
+              value={editForm.foodType}
+              onChangeText={text => setEditForm({ ...editForm, foodType: text })}
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.saveButton]}
+                onPress={handleSaveEdit}
+              >
+                <Text style={styles.buttonText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setEditModalVisible(false)}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* Delete Confirmation Modal */}
       <Modal
@@ -248,8 +354,14 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     marginTop: 8,
+  },
+  editButton: {
+    backgroundColor: '#3498db',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 4,
   },
   deleteButton: {
     backgroundColor: '#e74c3c',
@@ -279,6 +391,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+  },
+  modalInput: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 4,
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
   confirmText: {
     fontSize: 16,
