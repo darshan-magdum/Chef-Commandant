@@ -305,4 +305,25 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#999',
   },
+  paginationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  pageNumber: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginHorizontal: 4,
+    backgroundColor: '#007bff', // Default background color
+    borderRadius: 5,
+  },
+  currentPageNumber: {
+    backgroundColor: '#0056b3', // Active background color
+  },
+  pageNumberText: {
+    color: '#fff', // Default text color
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
 });
