@@ -72,10 +72,17 @@ export default function ViewFoodItems({ navigation }) {
 
   const handleSaveEdit = async () => {
     try {
+      const vendorId = await AsyncStorage.getItem('vendorMemberId');
+      if (vendorId === null) {
+        throw new Error('Vendor Member ID is not found');
+      }
+  
       const response = await axios.put(`http://192.168.0.114:3000/api/vendorMemberFoodRoutes/editfooditem/${selectedFoodItem._id}`, {
         ...editForm,
-        price: parseFloat(editForm.price),  // Convert string to number
+        price: parseFloat(editForm.price),
+        vendorId: vendorId, // Add vendorMemberId to request body
       });
+  
       if (response.status === 200) {
         const updatedFoodItems = foodItems.map(item =>
           item._id === selectedFoodItem._id ? { ...item, ...editForm, price: parseFloat(editForm.price) } : item
@@ -90,6 +97,7 @@ export default function ViewFoodItems({ navigation }) {
       Alert.alert('Error', 'Failed to update food item');
     }
   };
+  
 
   const filteredFoodItems = foodItems.filter(item => {
     if (item.name && typeof item.name === 'string') {
