@@ -10,7 +10,7 @@ export default function ManageFoodCollection({ navigation }) {
     name: '',
     description: '',
     foodType: '',
-    foodImage: null, // Added foodImage to form state
+    foodImage: null,
   });
 
   const [foodTypeModalVisible, setFoodTypeModalVisible] = useState(false);
@@ -19,7 +19,7 @@ export default function ManageFoodCollection({ navigation }) {
     name: '',
     description: '',
     foodType: '',
-    foodImage: '', // Added validation for foodImage
+    foodImage: '',
   });
 
   const handleChangeFoodType = (type) => {
@@ -49,6 +49,7 @@ export default function ManageFoodCollection({ navigation }) {
 
     if (!result.canceled) {
       setForm({ ...form, foodImage: result.assets[0] });
+      setErrors({ ...errors, foodImage: '' }); // Clear the error message when an image is selected
     }
   };
 
@@ -208,7 +209,6 @@ export default function ManageFoodCollection({ navigation }) {
     </ScrollView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
