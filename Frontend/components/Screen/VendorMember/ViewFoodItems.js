@@ -23,7 +23,7 @@ export default function ViewFoodItems({ navigation }) {
         setFoodItems(response.data);
       }
     } catch (error) {
-      Alert.alert('Error fetching vendor details:', error.message);
+      Alert.alert('No Food Items Available');
     }
   };
 
