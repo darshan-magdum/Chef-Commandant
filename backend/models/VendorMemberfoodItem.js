@@ -11,7 +11,17 @@ const vendorMemberFoodItemSchema = new mongoose.Schema({
     date: { type: Date, required: true },
     price: { type: Number, required: true },
     category: { type: String, required: true },
-    foodImage: { type: String, required: true }
+    foodImage: { type: String, required: true },
+    location: { 
+        type: [String], 
+        required: true,
+        validate: {
+            validator: function(array) {
+                return array.length === 1;
+            },
+            message: 'Location array must contain exactly one value'
+        }
+    } 
 });
 const VendorMemberFoodItem = mongoose.model('VendorMemberFoodItem', vendorMemberFoodItemSchema);
 

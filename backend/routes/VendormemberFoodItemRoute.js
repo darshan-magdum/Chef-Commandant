@@ -5,7 +5,7 @@ const VendorMemberFoodItem = require('../models/VendorMemberfoodItem'); // Adjus
 // POST route to create a new vendor member food item
 router.post('/addfooditem', async (req, res) => {
   try {
-    const { vendorId, name, description, foodType, date, price, category ,foodImage} = req.body;
+    const { vendorId, name, description, foodType, date, price, category ,foodImage ,location} = req.body;
     const errors = {};
 
     // Validate each required field
@@ -33,6 +33,9 @@ router.post('/addfooditem', async (req, res) => {
     if (!foodImage) {
       errors.foodImage = 'foodImage is required';
     }
+    if (!location || !Array.isArray(location) || location.length !== 1) {
+      errors.location = 'Location is required and must be an array with exactly one value';
+    }
 
 
     // Check if there are any validation errors
@@ -49,7 +52,8 @@ router.post('/addfooditem', async (req, res) => {
       date,
       price,
       category,
-      foodImage
+      foodImage,
+      location
       // Add other fields as needed
     });
 
@@ -116,7 +120,7 @@ router.put('/editfooditem/:foodItemId', async (req, res) => {
     }
 
     // Retrieve updated fields from request body
-    const { vendorId, name, description, foodType, date, price, category ,foodImage } = req.body;
+    const { vendorId, name, description, foodType, date, price, category ,foodImage ,location } = req.body;
 
     // Validate if any required fields are missing
     const errors = {};
@@ -144,6 +148,9 @@ router.put('/editfooditem/:foodItemId', async (req, res) => {
     if (!foodImage) {
       errors.foodImage = 'foodImage is required';
     }
+    if (!location || !Array.isArray(location) || location.length !== 1) {
+      errors.location = 'Location is required and must be an array with exactly one value';
+    }
 
     // Check if there are any validation errors
     if (Object.keys(errors).length > 0) {
@@ -158,7 +165,8 @@ router.put('/editfooditem/:foodItemId', async (req, res) => {
       foodType,
       date,
       price,
-      category
+      category,
+      foodImage, location 
     }, { new: true }); // { new: true } ensures the updated document is returned
 
     // Check if the food item was found and updated

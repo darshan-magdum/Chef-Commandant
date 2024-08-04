@@ -17,6 +17,7 @@ export default function AddFoodItems({ navigation }) {
     foodDescription: '',
     foodType: '',
     foodImage: null,
+    locations: [],
   });
 
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
@@ -49,6 +50,26 @@ export default function AddFoodItems({ navigation }) {
 
     retrieveVendorId();
   }, []);
+
+ 
+  const [userData, setUserData] = useState(null); // State to hold user data
+  console.log("userData",userData)
+
+  useEffect(() => {
+    fetchUserData(); // Fetch user data on component mount
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const vendormemberId = await AsyncStorage.getItem('vendorMemberId'); 
+      const response = await axios.get(`http://192.168.0.114:3000/api/vendormember/${vendormemberId}`);
+      if (response.status === 200) {
+        setUserData(response.data); // Store user data including locations
+      }
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+    }
+  };
 
   const handleChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate || form.date;
@@ -87,6 +108,7 @@ export default function AddFoodItems({ navigation }) {
           category: form.category,
           foodImage:form.foodImage,
           vendorId: vendorId,
+          location: [userData.locations[0]],
         };
 
         console.log('Submitting food item with:', payload);
@@ -98,8 +120,10 @@ export default function AddFoodItems({ navigation }) {
 
         navigation.goBack();
       } catch (error) {
-        console.error('Error submitting food item:', error);
-        Alert.alert('Error', 'Failed to submit food item');
+        console.error('Error submitting food item:', error.response ? error.response.data : error.message);
+        Alert.alert(error.response ? error.response.data : error.message);
+
+       
       }
     }
   };
@@ -216,6 +240,8 @@ export default function AddFoodItems({ navigation }) {
 
     fetchData();
   }, []);
+
+  
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}  style={styles.container}>
