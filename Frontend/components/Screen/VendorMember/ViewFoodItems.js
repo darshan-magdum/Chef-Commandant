@@ -146,6 +146,11 @@ export default function ViewFoodItems({ navigation }) {
         <Text style={styles.label}>Food Type:</Text>
         <Text style={styles.value}>{filteredFoodItems[currentPage - 1].foodType}</Text>
       </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Food Type:</Text>
+        <Text style={styles.value}>{filteredFoodItems[currentPage - 1].status}</Text>
+      </View>
+      
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(filteredFoodItems[currentPage - 1])}>

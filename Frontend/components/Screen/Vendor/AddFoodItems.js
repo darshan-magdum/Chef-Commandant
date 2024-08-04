@@ -109,6 +109,7 @@ export default function AddFoodItems({ navigation }) {
           foodImage:form.foodImage,
           vendorId: vendorId,
           location: [userData.locations[0]],
+          status: 'Available',
         };
 
         console.log('Submitting food item with:', payload);

@@ -21,7 +21,12 @@ const vendorMemberFoodItemSchema = new mongoose.Schema({
             },
             message: 'Location array must contain exactly one value'
         }
-    } 
+    } ,
+    status: { 
+        type: String, 
+        enum: ['Available', 'Finished'], 
+        default: 'Available' 
+    }
 });
 const VendorMemberFoodItem = mongoose.model('VendorMemberFoodItem', vendorMemberFoodItemSchema);
 

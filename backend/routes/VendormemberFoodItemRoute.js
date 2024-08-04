@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const VendorMemberFoodItem = require('../models/VendorMemberfoodItem'); // Adjust path as needed
+const VendorMemberFoodItem = require('../models/VendorMemberFoodItem'); // Adjust path as needed
 
 // POST route to create a new vendor member food item
 router.post('/addfooditem', async (req, res) => {
   try {
-    const { vendorId, name, description, foodType, date, price, category ,foodImage ,location} = req.body;
+    const { vendorId, name, description, foodType, date, price, category, foodImage, location, status } = req.body;
     const errors = {};
 
     // Validate each required field
@@ -31,12 +31,16 @@ router.post('/addfooditem', async (req, res) => {
       errors.category = 'Category is required';
     }
     if (!foodImage) {
-      errors.foodImage = 'foodImage is required';
+      errors.foodImage = 'Food image is required';
     }
     if (!location || !Array.isArray(location) || location.length !== 1) {
       errors.location = 'Location is required and must be an array with exactly one value';
     }
 
+    // Optional: Validate status (it will default to 'Available' if not provided)
+    if (status && !['Available', 'Finished'].includes(status)) {
+      errors.status = 'Invalid status value';
+    }
 
     // Check if there are any validation errors
     if (Object.keys(errors).length > 0) {
@@ -53,8 +57,8 @@ router.post('/addfooditem', async (req, res) => {
       price,
       category,
       foodImage,
-      location
-      // Add other fields as needed
+      location,
+      status: status || 'Available' // Default to 'Available' if not provided
     });
 
     // Save the new vendor member food item to the database
@@ -89,7 +93,7 @@ router.get('/getfooditems/:vendorId', async (req, res) => {
   }
 });
 
-
+// DELETE route to delete a vendor member food item by foodItemId
 router.delete('/deletefooditem/:foodItemId', async (req, res) => {
   const { foodItemId } = req.params;
 
@@ -120,7 +124,7 @@ router.put('/editfooditem/:foodItemId', async (req, res) => {
     }
 
     // Retrieve updated fields from request body
-    const { vendorId, name, description, foodType, date, price, category ,foodImage ,location } = req.body;
+    const { vendorId, name, description, foodType, date, price, category, foodImage, location, status } = req.body;
 
     // Validate if any required fields are missing
     const errors = {};
@@ -146,10 +150,15 @@ router.put('/editfooditem/:foodItemId', async (req, res) => {
       errors.category = 'Category is required';
     }
     if (!foodImage) {
-      errors.foodImage = 'foodImage is required';
+      errors.foodImage = 'Food image is required';
     }
     if (!location || !Array.isArray(location) || location.length !== 1) {
       errors.location = 'Location is required and must be an array with exactly one value';
+    }
+
+    // Optional: Validate status (it must be one of the allowed values)
+    if (status && !['Available', 'Finished'].includes(status)) {
+      errors.status = 'Invalid status value';
     }
 
     // Check if there are any validation errors
@@ -166,7 +175,9 @@ router.put('/editfooditem/:foodItemId', async (req, res) => {
       date,
       price,
       category,
-      foodImage, location 
+      foodImage,
+      location,
+      status // Update status if provided
     }, { new: true }); // { new: true } ensures the updated document is returned
 
     // Check if the food item was found and updated
@@ -181,6 +192,5 @@ router.put('/editfooditem/:foodItemId', async (req, res) => {
     res.status(500).json({ error: 'Failed to update food item' });
   }
 });
-
 
 module.exports = router;
