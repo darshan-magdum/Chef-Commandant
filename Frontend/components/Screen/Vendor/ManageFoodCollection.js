@@ -10,16 +10,16 @@ export default function ManageFoodCollection({ navigation }) {
     name: '',
     description: '',
     foodType: '',
+    foodImage: null, // Added foodImage to form state
   });
 
   const [foodTypeModalVisible, setFoodTypeModalVisible] = useState(false);
   const [selectedFoodType, setSelectedFoodType] = useState('');
-  const [selectedImage, setSelectedImage] = useState(null);
   const [errors, setErrors] = useState({
     name: '',
     description: '',
     foodType: '',
-    image: '',  // Add image-related error
+    foodImage: '', // Added validation for foodImage
   });
 
   const handleChangeFoodType = (type) => {
@@ -48,20 +48,20 @@ export default function ManageFoodCollection({ navigation }) {
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0]);
+      setForm({ ...form, foodImage: result.assets[0] });
     }
   };
 
   const handleSubmit = async () => {
     try {
-      const { name, description, foodType } = form;
+      const { name, description, foodType, foodImage } = form;
   
       let formValid = true;
       const newErrors = {
         name: name.trim() ? '' : 'Please enter Food Name',
         description: description.trim() ? '' : 'Please enter Food Description',
         foodType: foodType ? '' : 'Please select Food Type',
-        image: selectedImage ? '' : 'Please select a photo',  // Add image validation
+        foodImage: foodImage ? '' : 'Please select an image',
       };
   
       setErrors(newErrors);
@@ -79,10 +79,10 @@ export default function ManageFoodCollection({ navigation }) {
       formData.append('description', description);
       formData.append('foodType', foodType);
       
-      if (selectedImage) {
-        const response = await fetch(selectedImage.uri);
+      if (foodImage) {
+        const response = await fetch(foodImage.uri);
         const blob = await response.blob();
-        formData.append('foodImage', blob, selectedImage.fileName || 'photo.jpg');
+        formData.append('foodImage', blob, foodImage.fileName || 'photo.jpg');
       }
   
       const response = await axios.post('http://192.168.0.114:3000/api/fooditemroutes/createfoodtocollection', formData, {
@@ -177,10 +177,10 @@ export default function ManageFoodCollection({ navigation }) {
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Photo</Text>
               <TouchableOpacity style={styles.photoPicker} onPress={handleImagePick}>
-                <Text style={styles.pickerText}>{selectedImage ? 'Photo Selected' : 'Pick a photo'}</Text>
+                <Text style={styles.pickerText}>{form.foodImage ? 'Photo Selected' : 'Pick a photo'}</Text>
               </TouchableOpacity>
-              {selectedImage && <Image source={{ uri: selectedImage.uri }} style={styles.selectedImage} />}
-              {errors.image ? <Text style={styles.errorText}>{errors.image}</Text> : null} {/* Add image error display */}
+              {form.foodImage && <Image source={{ uri: form.foodImage.uri }} style={styles.selectedImage} />}
+              {errors.foodImage ? <Text style={styles.errorText}>{errors.foodImage}</Text> : null}
             </View>
           </View>
         </View>
@@ -208,6 +208,8 @@ export default function ManageFoodCollection({ navigation }) {
     </ScrollView>
   );
 }
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
