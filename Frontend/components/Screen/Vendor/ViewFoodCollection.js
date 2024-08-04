@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Modal, TextInput, ScrollView, Alert ,Platform ,KeyboardAvoidingView} from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Modal, TextInput, ScrollView, Alert, Platform, KeyboardAvoidingView, Image } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import axios from 'axios';
 
 export default function ViewFoodCollection({ navigation }) {
-  const [foodcollection, setFoodCollection] = useState([]);
+  const [foodItems, setFoodItems] = useState([]);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState(null);
@@ -14,49 +14,54 @@ export default function ViewFoodCollection({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [editFoodNameError, setEditFoodNameError] = useState('');
-const [editDescriptionError, setEditDescriptionError] = useState('');
-const [editFoodTypeError, setEditFoodTypeError] = useState('');
+  const [editDescriptionError, setEditDescriptionError] = useState('');
+  const [editFoodTypeError, setEditFoodTypeError] = useState('');
+  const [loading, setLoading] = useState(true);
 
+  const validateEditForm = () => {
+    let isValid = true;
 
-const validateEditForm = () => {
-  let isValid = true;
+    if (!editFoodName.trim()) {
+      setEditFoodNameError('Food Name is required');
+      isValid = false;
+    } else {
+      setEditFoodNameError('');
+    }
 
-  // Validate Food Name
-  if (!editFoodName.trim()) {
-    setEditFoodNameError('Food Name is required');
-    isValid = false;
-  } else {
-    setEditFoodNameError('');
-  }
+    if (!editDescription.trim()) {
+      setEditDescriptionError('Description is required');
+      isValid = false;
+    } else {
+      setEditDescriptionError('');
+    }
 
-  // Validate Description
-  if (!editDescription.trim()) {
-    setEditDescriptionError('Description is required');
-    isValid = false;
-  } else {
-    setEditDescriptionError('');
-  }
+    if (!editFoodType) {
+      setEditFoodTypeError('Food Type is required');
+      isValid = false;
+    } else {
+      setEditFoodTypeError('');
+    }
 
-  // Validate Food Type
-  if (!editFoodType) {
-    setEditFoodTypeError('Food Type is required');
-    isValid = false;
-  } else {
-    setEditFoodTypeError('');
-  }
-
-  return isValid;
-};
-
+    return isValid;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://192.168.0.114:3000/api/fooditemroutes/getallfoodcollection');
-        setFoodCollection(response.data);
+        const response = await axios.get('http://localhost:3000/api/fooditemroutes/getallfoodcollection');
+        
+        // Replace backslashes with forward slashes in image paths
+        const updatedFoodItems = response.data.map(item => ({
+          ...item,
+          foodImage: item.foodImage ? item.foodImage.replace(/\\/g, '/') : null
+        }));
+
+        setFoodItems(updatedFoodItems);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
         Alert.alert('Error', 'Failed to fetch data');
+        setLoading(false);
       }
     };
 
@@ -78,9 +83,9 @@ const validateEditForm = () => {
 
   const handleConfirmDelete = async () => {
     try {
-      await axios.delete(`http://192.168.0.114:3000/api/fooditemroutes/delete/${selectedCollection._id}`);
-      const updatedCollections = foodcollection.filter(c => c._id !== selectedCollection._id);
-      setFoodCollection(updatedCollections);
+      await axios.delete(`http://localhost:3000/api/fooditemroutes/delete/${selectedCollection._id}`);
+      const updatedCollections = foodItems.filter(c => c._id !== selectedCollection._id);
+      setFoodItems(updatedCollections);
       setDeleteModalVisible(false);
       Alert.alert('Food collection deleted successfully');
     } catch (error) {
@@ -91,58 +96,50 @@ const validateEditForm = () => {
 
   const handleConfirmEdit = async () => {
     try {
-      // Validate form fields
       if (!validateEditForm()) {
         return;
       }
-  
+
       const updatedCollection = {
         name: editFoodName,
         description: editDescription,
         foodType: editFoodType,
       };
-  
-      // Send PUT request to update collection
+
       await axios.put(
-        `http://192.168.0.114:3000/api/fooditemroutes/edit/${selectedCollection._id}`,
+        `http://localhost:3000/api/fooditemroutes/edit/${selectedCollection._id}`,
         updatedCollection
       );
-  
-      // Update local state with edited collection
-      const updatedCollections = foodcollection.map(c =>
+
+      const updatedCollections = foodItems.map(c =>
         c._id === selectedCollection._id ? { ...c, ...updatedCollection } : c
       );
-  
+
       Alert.alert('Success', 'Food collection updated successfully');
-      setFoodCollection(updatedCollections);
+      setFoodItems(updatedCollections);
       setEditModalVisible(false);
     } catch (error) {
       console.error('Error updating collection:', error);
       Alert.alert('Failed to update food collection');
     }
   };
-  
-  
 
   const handleSearch = (text) => {
     setSearchQuery(text);
   };
 
-  // Filtered and paginated collection based on search query
-  const filteredCollection = foodcollection.filter(collection => {
+  const filteredCollection = foodItems.filter(collection => {
     const searchTerm = searchQuery.toLowerCase().trim();
     const foodName = collection.name.toLowerCase().trim();
     return foodName.startsWith(searchTerm);
   });
 
-  // Calculate pagination
   const itemsPerPage = 10;
   const totalPages = Math.ceil(filteredCollection.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredCollection.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Function to handle page navigation
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
@@ -167,7 +164,11 @@ const validateEditForm = () => {
         </View>
       </View>
 
-      {currentItems.length === 0 ? (
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <Text>Loading...</Text>
+        </View>
+      ) : currentItems.length === 0 ? (
         <View style={styles.noRecordContainer}>
           <Text style={styles.noRecordText}>No Record Found</Text>
         </View>
@@ -175,6 +176,13 @@ const validateEditForm = () => {
         <ScrollView style={styles.cardContainer}>
           {currentItems.map(collection => (
             <View key={collection._id} style={styles.card}>
+              {collection.foodImage && (
+                <Image
+                  source={{ uri: `http://localhost:3000/${collection.foodImage}` }}
+                  style={styles.cardImage}
+                  resizeMode="cover"
+                />
+              )}
               <View style={styles.row}>
                 <Text style={styles.label}>Food Name:</Text>
                 <Text style={styles.value}>{collection.name}</Text>
@@ -206,7 +214,6 @@ const validateEditForm = () => {
         </ScrollView>
       )}
 
-      {/* Pagination */}
       {filteredCollection.length > itemsPerPage && (
         <View style={styles.paginationContainer}>
           {Array.from({ length: totalPages }, (_, index) => (
@@ -335,6 +342,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  cardImage: {
+    width: '100%',
+    height: 230,
+    borderRadius: 8,
+    marginBottom: 10,
   },
   header: {
     flexDirection: 'row',
