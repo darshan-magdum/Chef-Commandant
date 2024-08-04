@@ -5,7 +5,7 @@ const VendorMemberFoodItem = require('../models/VendorMemberfoodItem'); // Adjus
 // POST route to create a new vendor member food item
 router.post('/addfooditem', async (req, res) => {
   try {
-    const { vendorId, name, description, foodType, date, price, category } = req.body;
+    const { vendorId, name, description, foodType, date, price, category ,foodImage} = req.body;
     const errors = {};
 
     // Validate each required field
@@ -30,6 +30,10 @@ router.post('/addfooditem', async (req, res) => {
     if (!category) {
       errors.category = 'Category is required';
     }
+    if (!foodImage) {
+      errors.foodImage = 'foodImage is required';
+    }
+
 
     // Check if there are any validation errors
     if (Object.keys(errors).length > 0) {
@@ -44,7 +48,8 @@ router.post('/addfooditem', async (req, res) => {
       foodType,
       date,
       price,
-      category
+      category,
+      foodImage
       // Add other fields as needed
     });
 
@@ -111,7 +116,7 @@ router.put('/editfooditem/:foodItemId', async (req, res) => {
     }
 
     // Retrieve updated fields from request body
-    const { vendorId, name, description, foodType, date, price, category } = req.body;
+    const { vendorId, name, description, foodType, date, price, category ,foodImage } = req.body;
 
     // Validate if any required fields are missing
     const errors = {};
@@ -135,6 +140,9 @@ router.put('/editfooditem/:foodItemId', async (req, res) => {
     }
     if (!category) {
       errors.category = 'Category is required';
+    }
+    if (!foodImage) {
+      errors.foodImage = 'foodImage is required';
     }
 
     // Check if there are any validation errors

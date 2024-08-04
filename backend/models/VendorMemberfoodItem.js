@@ -11,6 +11,7 @@ const vendorMemberFoodItemSchema = new mongoose.Schema({
     date: { type: Date, required: true },
     price: { type: Number, required: true },
     category: { type: String, required: true },
+    foodImage: { type: String, required: true }
 });
 const VendorMemberFoodItem = mongoose.model('VendorMemberFoodItem', vendorMemberFoodItemSchema);
 

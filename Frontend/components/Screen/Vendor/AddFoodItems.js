@@ -16,6 +16,7 @@ export default function AddFoodItems({ navigation }) {
     selectedFood: null,
     foodDescription: '',
     foodType: '',
+    foodImage: null,
   });
 
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
@@ -84,6 +85,7 @@ export default function AddFoodItems({ navigation }) {
           date: form.date,
           price: form.price,
           category: form.category,
+          foodImage:form.foodImage,
           vendorId: vendorId,
         };
 
@@ -139,6 +141,7 @@ export default function AddFoodItems({ navigation }) {
         selectedFood: itemValue,
         foodDescription: selectedFoodItem.description,
         foodType: selectedFoodItem.foodType,
+        foodImage:selectedFoodItem.foodImage,
       });
     } else {
       console.warn(`Food item with name '${itemValue}' not found in foodcollection`);
@@ -147,6 +150,7 @@ export default function AddFoodItems({ navigation }) {
         selectedFood: itemValue,
         foodDescription: '',
         foodType: '',
+        foodImage: '',
       });
     }
 

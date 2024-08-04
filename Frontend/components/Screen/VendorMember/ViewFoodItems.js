@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, Alert, Modal } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, Alert, Modal, Image } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -19,13 +19,22 @@ export default function ViewFoodItems({ navigation }) {
     try {
       const vendormemberId = await AsyncStorage.getItem('vendorMemberId');
       const response = await axios.get(`http://192.168.0.114:3000/api/vendorMemberFoodRoutes/getfooditems/${vendormemberId}`);
-      if (response.status === 200) {
-        setFoodItems(response.data);
-      }
+  
+  
+      // Replace backslashes with forward slashes in image paths
+      const updatedFoodItems = response.data.map(item => ({
+        ...item,
+        foodImage: item.foodImage ? item.foodImage.replace(/\\/g, '/') : null
+      }));
+  
+  
+      setFoodItems(updatedFoodItems);
     } catch (error) {
       Alert.alert('No Food Items Available');
     }
   };
+  
+  
 
   const handleDelete = (foodItem) => {
     setSelectedFoodItem(foodItem);
@@ -96,50 +105,62 @@ export default function ViewFoodItems({ navigation }) {
 
       {/* Food Item Cards or No Record Found */}
       {filteredFoodItems.length > 0 ? (
-        <ScrollView style={styles.cardContainer}>
-          <View key={filteredFoodItems[currentPage - 1]._id} style={styles.card}>
-            <View style={styles.row}>
-              <Text style={styles.label}>Food Item:</Text>
-              <Text style={styles.value}>{filteredFoodItems[currentPage - 1].name}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Date:</Text>
-              <Text style={styles.value}>{formatDate(filteredFoodItems[currentPage - 1].date)}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Price:</Text>
-              <Text style={styles.value}>{filteredFoodItems[currentPage - 1].price}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Category:</Text>
-              <Text style={styles.value}>{filteredFoodItems[currentPage - 1].category}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Description:</Text>
-              <Text style={styles.value}>{filteredFoodItems[currentPage - 1].description}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Food Type:</Text>
-              <Text style={styles.value}>{filteredFoodItems[currentPage - 1].foodType}</Text>
-            </View>
-
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(filteredFoodItems[currentPage - 1])}>
-                <Text style={styles.buttonText}>Delete</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ScrollView>
+  <ScrollView style={styles.cardContainer}>
+    <View key={filteredFoodItems[currentPage - 1]._id} style={styles.card}>
+      {console.log('Food Image URL:', `http://192.168.0.114:3000/${filteredFoodItems[currentPage - 1].foodImage}`)}
+      {filteredFoodItems[currentPage - 1].foodImage ? (
+        <Image
+          source={{ uri: `http://192.168.0.114:3000/${filteredFoodItems[currentPage - 1].foodImage}` }}
+          style={styles.cardImage}
+          resizeMode="cover"
+          onError={(e) => console.error('Image Load Error:', e.nativeEvent.error)}
+        />
       ) : (
-        <View style={styles.noRecordContainer}>
-          <Text style={styles.noRecordText}>No Record Found</Text>
-        </View>
+        <Text>No Image Available</Text>
       )}
+      <View style={styles.row}>
+        <Text style={styles.label}>Food Item:</Text>
+        <Text style={styles.value}>{filteredFoodItems[currentPage - 1].name}</Text>
+      </View>
+
+      <View style={styles.row}>
+        <Text style={styles.label}>Date:</Text>
+        <Text style={styles.value}>{formatDate(filteredFoodItems[currentPage - 1].date)}</Text>
+      </View>
+
+      <View style={styles.row}>
+        <Text style={styles.label}>Price:</Text>
+        <Text style={styles.value}>{filteredFoodItems[currentPage - 1].price}</Text>
+      </View>
+
+      <View style={styles.row}>
+        <Text style={styles.label}>Category:</Text>
+        <Text style={styles.value}>{filteredFoodItems[currentPage - 1].category}</Text>
+      </View>
+
+      <View style={styles.row}>
+        <Text style={styles.label}>Description:</Text>
+        <Text style={styles.value}>{filteredFoodItems[currentPage - 1].description}</Text>
+      </View>
+
+      <View style={styles.row}>
+        <Text style={styles.label}>Food Type:</Text>
+        <Text style={styles.value}>{filteredFoodItems[currentPage - 1].foodType}</Text>
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(filteredFoodItems[currentPage - 1])}>
+          <Text style={styles.buttonText}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </ScrollView>
+) : (
+  <View style={styles.noRecordContainer}>
+    <Text style={styles.noRecordText}>No Record Found</Text>
+  </View>
+)}
+
 
       {/* Pagination */}
       <View style={styles.paginationContainer}>
@@ -235,6 +256,12 @@ const styles = StyleSheet.create({
     height: 40,
     color: '#333',
     paddingHorizontal: 12,
+  },
+  cardImage: {
+    width: '100%',
+    height: 230,
+    borderRadius: 8,
+    marginBottom: 10,
   },
   cardContainer: {
     paddingHorizontal: 24,
