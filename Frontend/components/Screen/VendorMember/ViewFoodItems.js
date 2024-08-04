@@ -107,7 +107,6 @@ export default function ViewFoodItems({ navigation }) {
       {filteredFoodItems.length > 0 ? (
   <ScrollView style={styles.cardContainer}>
     <View key={filteredFoodItems[currentPage - 1]._id} style={styles.card}>
-      {console.log('Food Image URL:', `http://192.168.0.114:3000/${filteredFoodItems[currentPage - 1].foodImage}`)}
       {filteredFoodItems[currentPage - 1].foodImage ? (
         <Image
           source={{ uri: `http://192.168.0.114:3000/${filteredFoodItems[currentPage - 1].foodImage}` }}
