@@ -14,6 +14,8 @@ export default function ManageFoodCollection({ navigation }) {
 
   const [foodTypeModalVisible, setFoodTypeModalVisible] = useState(false);
   const [selectedFoodType, setSelectedFoodType] = useState('');
+  const [selectedImage, setSelectedImage] = useState(null);
+  console.log("selectedImage",selectedImage)
 
   const [errors, setErrors] = useState({
     name: '',
@@ -38,42 +40,65 @@ export default function ManageFoodCollection({ navigation }) {
     setErrors({ ...errors, description: description.trim() ? '' : 'Please enter Food Description' });
   };
 
+  const handleImagePick = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    console.log("image",result)
+
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0]);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       const { name, description, foodType } = form;
-
-      // Simple validation on submit
+  
       let formValid = true;
       const newErrors = {
         name: name.trim() ? '' : 'Please enter Food Name',
         description: description.trim() ? '' : 'Please enter Food Description',
         foodType: foodType ? '' : 'Please select Food Type',
       };
-
+  
       setErrors(newErrors);
-
-      // Check if there are any errors
+  
       if (Object.values(newErrors).some(error => error !== '')) {
         formValid = false;
       }
-
+  
       if (!formValid) {
         return;
       }
-
-      const formData = {
-        name,
-        description,
-        foodType,
-      };
-
-      const response = await axios.post('http://192.168.0.114:3000/api/fooditemroutes/createfoodtocollection', formData);
+  
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('foodType', foodType);
+      
+      if (selectedImage) {
+        const response = await fetch(selectedImage.uri);
+        const blob = await response.blob();
+        formData.append('foodImage', blob, selectedImage.fileName || 'photo.jpg'); // Use 'foodImage'
+      }
+  
+      const response = await axios.post('http://192.168.0.114:3000/api/fooditemroutes/createfoodtocollection', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
       Alert.alert(response.data.message);
-      navigation.goBack(); // Navigate back to previous screen
+      navigation.goBack(); 
     } catch (error) {
-      Alert.alert('Error submitting food item:', error);
+      Alert.alert('Error submitting food item:', error.message);
     }
   };
+  
 
   const renderFoodTypeItem = ({ item }) => {
     const iconName = item === 'Veg' ? 'circle' : 'circle';
@@ -153,9 +178,10 @@ export default function ManageFoodCollection({ navigation }) {
 
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Photo</Text>
-              <TouchableOpacity style={styles.photoPicker}>
-                <Text style={styles.pickerText}>Pick a photo</Text>
+              <TouchableOpacity style={styles.photoPicker} onPress={handleImagePick}>
+                <Text style={styles.pickerText}>{selectedImage ? 'Photo Selected' : 'Pick a photo'}</Text>
               </TouchableOpacity>
+              {selectedImage && <Image source={{ uri: selectedImage.uri }} style={styles.selectedImage} />}
             </View>
           </View>
         </View>
@@ -183,6 +209,7 @@ export default function ManageFoodCollection({ navigation }) {
     </ScrollView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -239,21 +266,22 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     padding: 10,
     fontSize: 16,
-    color: '#333',
-    minHeight: 100,
+    height: 100,
     textAlignVertical: 'top',
+    color: '#333',
   },
   picker: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    marginTop: 4,
+    padding: 10,
   },
   pickerRow: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  pickerItemIcon: {
+    marginRight: 8,
   },
   pickerText: {
     fontSize: 16,
@@ -263,22 +291,34 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    marginTop: 4,
+    padding: 10,
     alignItems: 'center',
+  },
+  selectedImage: {
+    marginTop: 10,
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
+    borderRadius: 4,
   },
   submitButton: {
     backgroundColor: '#007bff',
-    paddingVertical: 14,
+    paddingVertical: 15,
+    paddingHorizontal: 30,
     borderRadius: 4,
+    marginTop: 20,
+    marginHorizontal: 24,
     alignItems: 'center',
-    marginTop: 16,
   },
   submitButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#fff',
     fontWeight: '600',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    marginTop: 4,
   },
   modalContainer: {
     flex: 1,
@@ -288,44 +328,38 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: '#fff',
-    borderRadius: 8,
     padding: 20,
+    borderRadius: 10,
     width: '80%',
-    maxHeight: '80%',
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 16,
+    marginBottom: 12,
+  },
+  closeButton: {
+    marginTop: 20,
+    alignSelf: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#007bff',
+    borderRadius: 4,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
   pickerItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 10,
-  },
-  pickerItemIcon: {
-    marginRight: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
   pickerItemText: {
     fontSize: 16,
+    marginLeft: 10,
     color: '#333',
-  },
-  closeButton: {
-    marginTop: 16,
-    backgroundColor: '#007bff',
-    paddingVertical: 12,
-    borderRadius: 4,
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: '600',
-  },
-  errorText: {
-    fontSize: 12,
-    color: 'red',
-    marginTop: 4,
   },
 });

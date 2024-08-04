@@ -1,21 +1,41 @@
 const express = require('express');
 const router = express.Router();
-const FoodItem = require('../models/FoodItem'); // Adjust the path as per your project structure
+const multer = require('multer');
+const path = require('path');
+const FoodItem = require('../models/FoodItem');
+
+// Set up storage for multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // 'uploads' is the directory where images will be saved
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Create a unique filename
+  }
+});
+
+// Initialize upload with storage settings
+const upload = multer({ storage: storage });
 
 // Route to create a new food item
-router.post("/createfoodtocollection", async (req, res) => {
+router.post("/createfoodtocollection", upload.single('foodImage'), async (req, res) => {
+  console.log('Received File:', req.file); // Debugging: Log file info
+  console.log('Received Body:', req.body); // Debugging: Log form data
+
   try {
     const { name, description, foodType } = req.body;
+    const foodImage = req.file ? req.file.path : null;
 
     // Check if all fields are provided
-    if (!name || !description || !foodType) {
-      return res.status(400).json({ message: 'All fields (name, description, foodType) are required' });
+    if (!name || !description || !foodType || !foodImage) {
+      return res.status(400).json({ message: 'All fields (name, description, foodType, foodImage) are required' });
     }
 
     const newFoodItem = new FoodItem({
       name,
       description,
       foodType,
+      foodImage,
     });
 
     const savedFoodItem = await newFoodItem.save();
@@ -27,9 +47,13 @@ router.post("/createfoodtocollection", async (req, res) => {
 });
 
 // Route to update an existing food item
-router.put("/edit/:id", async (req, res) => {
+router.put("/edit/:id", upload.single('foodImage'), async (req, res) => {
+  console.log('Received File:', req.file); // Debugging: Log file info
+  console.log('Received Body:', req.body); // Debugging: Log form data
+
   try {
     const { name, description, foodType } = req.body;
+    const foodImage = req.file ? req.file.path : req.body.foodImage; // Use new file if uploaded, else keep the old one
     const foodItemId = req.params.id;
 
     // Check if all fields are provided
@@ -41,6 +65,7 @@ router.put("/edit/:id", async (req, res) => {
       name,
       description,
       foodType,
+      foodImage,
     }, { new: true });
 
     if (!updatedFoodItem) {
