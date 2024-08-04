@@ -15,12 +15,11 @@ export default function ManageFoodCollection({ navigation }) {
   const [foodTypeModalVisible, setFoodTypeModalVisible] = useState(false);
   const [selectedFoodType, setSelectedFoodType] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
-  console.log("selectedImage",selectedImage)
-
   const [errors, setErrors] = useState({
     name: '',
     description: '',
     foodType: '',
+    image: '',  // Add image-related error
   });
 
   const handleChangeFoodType = (type) => {
@@ -47,7 +46,6 @@ export default function ManageFoodCollection({ navigation }) {
       aspect: [4, 3],
       quality: 1,
     });
-    console.log("image",result)
 
     if (!result.canceled) {
       setSelectedImage(result.assets[0]);
@@ -63,6 +61,7 @@ export default function ManageFoodCollection({ navigation }) {
         name: name.trim() ? '' : 'Please enter Food Name',
         description: description.trim() ? '' : 'Please enter Food Description',
         foodType: foodType ? '' : 'Please select Food Type',
+        image: selectedImage ? '' : 'Please select a photo',  // Add image validation
       };
   
       setErrors(newErrors);
@@ -83,7 +82,7 @@ export default function ManageFoodCollection({ navigation }) {
       if (selectedImage) {
         const response = await fetch(selectedImage.uri);
         const blob = await response.blob();
-        formData.append('foodImage', blob, selectedImage.fileName || 'photo.jpg'); // Use 'foodImage'
+        formData.append('foodImage', blob, selectedImage.fileName || 'photo.jpg');
       }
   
       const response = await axios.post('http://192.168.0.114:3000/api/fooditemroutes/createfoodtocollection', formData, {
@@ -98,7 +97,6 @@ export default function ManageFoodCollection({ navigation }) {
       Alert.alert('Error submitting food item:', error.message);
     }
   };
-  
 
   const renderFoodTypeItem = ({ item }) => {
     const iconName = item === 'Veg' ? 'circle' : 'circle';
@@ -182,6 +180,7 @@ export default function ManageFoodCollection({ navigation }) {
                 <Text style={styles.pickerText}>{selectedImage ? 'Photo Selected' : 'Pick a photo'}</Text>
               </TouchableOpacity>
               {selectedImage && <Image source={{ uri: selectedImage.uri }} style={styles.selectedImage} />}
+              {errors.image ? <Text style={styles.errorText}>{errors.image}</Text> : null} {/* Add image error display */}
             </View>
           </View>
         </View>
@@ -209,7 +208,6 @@ export default function ManageFoodCollection({ navigation }) {
     </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
