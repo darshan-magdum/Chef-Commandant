@@ -53,7 +53,7 @@ export default function VendorEmployeeHome() {
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
 
-  const fetchFoodItems = async () => {
+  const fetchFoodItems = useCallback(async () => {
     try {
       const vendormemberId = await AsyncStorage.getItem('vendorMemberId');
       const response = await axios.get(`http://192.168.0.114:3000/api/vendorMemberFoodRoutes/getfooditems/${vendormemberId}`);
@@ -81,11 +81,17 @@ export default function VendorEmployeeHome() {
     } catch (error) {
       Alert.alert('No Food Items Available');
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchFoodItems(); // Fetch food items on component mount
-  }, []);
+  }, [fetchFoodItems]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchFoodItems(); // Fetch food items when screen gains focus
+    }, [fetchFoodItems])
+  );
 
   useEffect(() => {
     // Filter foodItems based on selectedFilter, selectedLocation, and searchQuery
@@ -199,7 +205,7 @@ export default function VendorEmployeeHome() {
         </View>
       )}
 
-      <Modal
+<Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
@@ -234,6 +240,6 @@ export default function VendorEmployeeHome() {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+          </ScrollView>
   );
 }
