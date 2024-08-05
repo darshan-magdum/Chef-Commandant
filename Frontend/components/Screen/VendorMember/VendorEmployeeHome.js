@@ -2,11 +2,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, FlatList, Image, ScrollView, Modal } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { useNavigation ,useFocusEffect } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-
-const Card = ({ image, name, type, isVeg, price, availability, vendor, location, onEdit, onDelete, searchQuery }) => {
+ 
+const Card = ({ image, name, type, isVeg, price, availability, vendor, location, searchQuery }) => {
   let statusBackgroundColor = '#57AF46'; // Default color for available items
  
   if (availability === 'finished') {
@@ -21,8 +22,8 @@ const Card = ({ image, name, type, isVeg, price, availability, vendor, location,
       <Image source={image} style={styles.foodImage} resizeMode="cover" />
      
       {/* Price Badge */}
-      <View style={[styles.priceBadgeWhite]}>
-        <Text style={[styles.priceTextBlack]}>₹{price}</Text>
+      <View style={styles.priceBadge}>
+        <Text style={styles.priceText}>₹{price}</Text>
       </View>
  
       {/* Status Badge */}
@@ -39,24 +40,9 @@ const Card = ({ image, name, type, isVeg, price, availability, vendor, location,
             <FeatherIcon name="circle" size={16} color="white" style={styles.nonVegIcon} />
           )}
         </View>
-      
- 
-        {/* Edit and Delete Icons */}
-        <View style={styles.editDeleteIcons}>
-          <FeatherIcon
-            name="edit"
-            size={20}
-            color="#007bff"
-            style={styles.editIcon}
-            onPress={() => onEdit()}
-          />
-          <FeatherIcon
-            name="trash-2"
-            size={20}
-            color="red"
-            style={styles.deleteIcon}
-            onPress={() => onDelete()}
-          />
+        <View style={styles.vendorInfo}>
+          <Text style={styles.vendorName}>{vendor}</Text>
+          <Text style={styles.vendorLocation}>{location}</Text>
         </View>
       </View>
     </View>
@@ -139,73 +125,13 @@ export default function VendorEmployeeHome() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('City A'); // Default location
  
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [DeleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [editItem, setEditItem] = useState(null);
- 
-  const openEditModal = (item) => {
- 
-    setEditModalVisible(true);
+  const openModal = () => {
+    setModalVisible(true);
   };
  
-  const closeEditModal = () => {
-    setEditItem(null);
-    setEditModalVisible(false);
+  const closeModal = () => {
+    setModalVisible(false);
   };
- 
-  const openDeleteModal = (item) => {
-    setDeleteModalVisible(true);
-    setEditItem(item); // Optional: Set the item to be deleted for confirmation
-  };
- 
-  const closeDeleteModal = () => {
-    setDeleteModalVisible(false);
-    setEditItem(null); // Clear the editItem state
-  };
- 
-
-  const [userData, setUserData] = useState(null); // State to hold user data
-
-    const fetchUserData = useCallback(async () => {
-      try {
-        const vendormemberId = await AsyncStorage.getItem('vendorMemberId');  // Retrieve user ID from AsyncStorage
-      console.log('Fetching user details for userId:', vendormemberId);
-      const response = await axios.get(`http://192.168.0.114:3000/api/vendormember/${vendormemberId}`); // Fetch user details using user ID
-        console.log('User Detailshh:', response.data);
-  
-        if (response.status === 200) {
-          setUserData(response.data); // Set user data to state
-        } else {
-          console.error('Failed to fetch user details');
-        }
-      } catch (error) {
-        console.error('Error fetching user details:', error);
-        // Handle error scenarios
-      }
-    }, []); // Add empty dependency array to ensure this function is stable and does not change
-  
-    useEffect(() => {
-      fetchUserData(); // Fetch user data on component mount
-    }, [fetchUserData]); // Ensure useEffect runs when fetchUserData changes
-  
-    useFocusEffect(
-      useCallback(() => {
-        fetchUserData();
-      }, [fetchUserData])
-    );
-
- 
- 
- 
-  const saveChanges = (item) => {
-    // Implement your delete logic here
-    console.log('Deleting item with ID:', item.id);
-    // Filter out the item from foodItems
-    const updatedItems = foodItems.filter((i) => i.id !== item.id);
-    setFoodItems(updatedItems);
-    closeDeleteModal();
-  };
- 
  
   const renderFoodItem = ({ item }) => (
     <Card
@@ -215,11 +141,9 @@ export default function VendorEmployeeHome() {
       isVeg={item.isVeg}
       price={item.price}
       availability={item.availability}
-    
-      onEdit={() => openEditModal(item)} // Handle edit action
-      onDelete={() => openDeleteModal(item)}
+      vendor={item.vendor}
+      location={item.location}
       searchQuery={searchQuery} // Pass searchQuery to Card component
-     
     />
   );
  
@@ -235,19 +159,55 @@ export default function VendorEmployeeHome() {
  
   const [filteredFoodItems, setFilteredFoodItems] = useState(foodItems); // State to hold filtered items
  
+
+
+  const [userData, setUserData] = useState(null); // State to hold user data
+
+  const fetchUserData = useCallback(async () => {
+    try {
+      const vendormemberId = await AsyncStorage.getItem('vendorMemberId');  // Retrieve user ID from AsyncStorage
+    console.log('Fetching user details for userId:', vendormemberId);
+    const response = await axios.get(`http://192.168.0.114:3000/api/vendormember/${vendormemberId}`); // Fetch user details using user ID
+      console.log('User Detailshh:', response.data);
+
+      if (response.status === 200) {
+        setUserData(response.data); // Set user data to state
+      } else {
+        console.error('Failed to fetch user details');
+      }
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+      // Handle error scenarios
+    }
+  }, []); // Add empty dependency array to ensure this function is stable and does not change
+
+  useEffect(() => {
+    fetchUserData(); // Fetch user data on component mount
+  }, [fetchUserData]); // Ensure useEffect runs when fetchUserData changes
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserData();
+    }, [fetchUserData])
+  );
+
+
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
+    
+
       <View style={styles.header}>
-        <View style={styles.locationContainer}>
-          <Text style={styles.locationText}>{selectedLocation}</Text>
-         
-        </View>
+        <TouchableOpacity onPress={openModal}>
+          <View style={styles.locationContainer}>
+            <Text style={styles.locationText}>{selectedLocation}</Text>
+            <FeatherIcon name="chevron-down" size={20} color="#007bff" />
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('VendorMemberSiderMenu')}>
         <View style={styles.userCircle}>
          
-           
-        {userData &&  <Text style={styles.userInitials}>
+         {userData &&  <Text style={styles.userInitials}>
          {userData.name ? userData.name.charAt(0).toUpperCase() : ''}
        </Text>}
        </View>
@@ -309,131 +269,65 @@ export default function VendorEmployeeHome() {
       </ScrollView>
  
       {/* Food List */}
-      <FlatList
-        data={filteredFoodItems}
-        renderItem={renderFoodItem}
-        keyExtractor={(item) => item.id.toString()}
-        style={styles.foodList}
-      />
+      {filteredFoodItems.length > 0 ? (
+        <FlatList
+          data={filteredFoodItems}
+          renderItem={renderFoodItem}
+          keyExtractor={(item) => item.id.toString()}
+          style={styles.foodList}
+        />
+      ) : (
+        <View style={styles.noItemsContainer}>
+          <Text style={styles.noItemsText}>No food items found</Text>
+        </View>
+      )}
  
-      {/* Edit Modal */}
+      {/* Location Modal */}
       <Modal
         animationType="slide"
         transparent={true}
-        visible={editModalVisible}
-        onRequestClose={closeEditModal}
+        visible={modalVisible}
+        onRequestClose={closeModal}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Edit Item</Text>
-            <ScrollView>
-              {/* Name */}
-              <Text style={styles.inputLabel}>Name</Text>
-              <TextInput
-                style={styles.inputField}
-                value={editItem?.name}
-                onChangeText={(text) => setEditItem({ ...editItem, name: text })}
-              />
- 
-              {/* Type */}
-              <Text style={styles.inputLabel}>Type</Text>
-              <TextInput
-                style={styles.inputField}
-                value={editItem?.type}
-                onChangeText={(text) => setEditItem({ ...editItem, type: text })}
-              />
- 
-              {/* Price */}
-              <Text style={styles.inputLabel}>Price</Text>
-              <TextInput
-                style={styles.inputField}
-                value={editItem?.price}
-                onChangeText={(text) => setEditItem({ ...editItem, price: text })}
-              />
- 
-              {/* Availability */}
-              <Text style={styles.inputLabel}>Availability</Text>
-              <TextInput
-                style={styles.inputField}
-                value={editItem?.availability}
-                onChangeText={(text) => setEditItem({ ...editItem, availability: text })}
-              />
- 
-              {/* Vendor */}
-              <Text style={styles.inputLabel}>Vendor</Text>
-              <TextInput
-                style={styles.inputField}
-                value={editItem?.vendor}
-                onChangeText={(text) => setEditItem({ ...editItem, vendor: text })}
-              />
- 
-              {/* Location */}
-              <Text style={styles.inputLabel}>Location</Text>
-              <TextInput
-                style={styles.inputField}
-                value={editItem?.location}
-                onChangeText={(text) => setEditItem({ ...editItem, location: text })}
-              />
- 
-              {/* Buttons */}
-              <View style={styles.modalButtons}>
- 
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Select Location</Text>
+            {/* Replace ScrollView with Picker */}
+            <Picker
+  selectedValue={selectedLocation}
+  onValueChange={(itemValue, itemIndex) => setSelectedLocation(itemValue)}
+  style={styles.modalPicker}
+>
+  {foodItems.map((item) => (
+    <Picker.Item
+      key={item.location}
+      label={item.location}
+      value={item.location}
+    />
+  ))}
+</Picker>
+
+
+            {/* Buttons */}
+            <View style={styles.modalButtonContainer}>
+              {/* Done Button */}
               <TouchableOpacity
-                  style={[styles.modalButton, styles.saveButton]}
-             
-                 
-                >
-                  <Text style={styles.buttonText}>Save</Text>
-                </TouchableOpacity>
- 
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.cancelButton]}
-                 
-                  onPress={() => closeEditModal()}
-                >
-                  <Text style={styles.buttonText}>Cancel</Text>
-                </TouchableOpacity>
-             
-              </View>
-            </ScrollView>
+                style={[styles.modalButton, styles.modalDoneButton]}
+                onPress={closeModal}
+              >
+                <Text style={styles.textStyle}>Done</Text>
+              </TouchableOpacity>
+              {/* Close Button */}
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalCloseButton]}
+                onPress={closeModal}
+              >
+                <Text style={styles.textStyle}>Close</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
- 
- 
-        {/* Delete Modal */}
-        <Modal
-  animationType="slide"
-  transparent={true}
-  visible={DeleteModalVisible}
-  onRequestClose={closeDeleteModal}
->
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <Text style={styles.modalTitle}>Are you sure you want to delete this item?</Text>
-      <ScrollView>
-        <View style={styles.modalButtons}>
-          <TouchableOpacity
-            style={[styles.modalButton, styles.saveButton]}
-            onPress={() => saveChanges(editItem)} // Pass the item to be deleted
-          >
-            <Text style={styles.buttonText}>Yes</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.modalButton, styles.cancelButton]}
-            onPress={closeDeleteModal}
-          >
-            <Text style={styles.buttonText}>No</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </View>
-  </View>
-</Modal>
- 
- 
- 
-     
     </ScrollView>
   );
 }
@@ -441,14 +335,15 @@ export default function VendorEmployeeHome() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 15,
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 20,
+    marginBottom: 16,
   },
   locationContainer: {
     flexDirection: 'row',
@@ -459,11 +354,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#d3d3d3',
+    borderColor: '#d3d3d3', 
   },
   locationText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    marginRight: 8,
+  },
+  locationIcon: {
+    marginLeft: 8,
   },
   userCircle: {
     backgroundColor: '#007bff',
@@ -475,24 +373,22 @@ const styles = StyleSheet.create({
   },
   userInitials: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
   },
   searchBoxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5,
-    marginTop: 20,
+    backgroundColor: '#fff',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 20,
-    marginBottom: 6,
+    marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#d3d3d3',
+    borderColor: '#d3d3d3', 
   },
   searchIcon: {
-    marginRight: 10,
+    marginRight: 8,
   },
   searchBox: {
     flex: 1,
@@ -500,89 +396,101 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   filterScroll: {
-    marginTop: 20,
+    marginBottom: 16,
   },
   filters: {
     flexDirection: 'row',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   filterButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#f0f0f0',
     borderRadius: 10,
     marginHorizontal: 3,
+    backgroundColor: '#fff', // Default background color
   },
   filterText: {
-    fontSize: 16,
-    color: '#555',
+    fontSize: 14,
+    color: '#000', // Default text color
   },
+ 
   selectedFilter: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#007bff', // Selected background color
   },
   selectedFilterText: {
-    color: '#fff',
+    color: '#fff', // Selected text color
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   foodList: {
-    marginTop: 10,
+    marginBottom: 16,
   },
   foodCard: {
-    marginBottom: 20,
     backgroundColor: '#fff',
-    borderRadius: 10,
-    elevation: 3,
-    shadowOffset: { width: 0, height: 2 },
+    borderRadius: 8,
+    marginBottom: 16,
+    elevation: 2,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
     shadowRadius: 2,
+    marginLeft: 8,
+    marginRight: 8,
   },
   foodImage: {
     width: '100%',
-    height: 150,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
+    height: 200,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
-  priceBadgeWhite: {
+  priceBadge: {
     position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: '#fff',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
+    top: 12,
+    left: 12,
+    backgroundColor: 'white',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    elevation: 3,
+    zIndex: 1,
   },
-  priceTextBlack: {
+  priceText: {
     color: '#000',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   statusBadge: {
     position: 'absolute',
-    top: 10,
-    right: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
+    top: 12,
+    right: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    elevation: 3,
+    zIndex: 1,
   },
   statusText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: 'bold',
   },
   foodBottom: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
+    padding: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
   },
   foodLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   foodName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginRight: 5,
+    fontSize: 16,
+    fontWeight: '600',
+    marginRight: 8,
   },
   vegIcon: {
     marginRight: 4,
@@ -606,79 +514,81 @@ const styles = StyleSheet.create({
   },
   vendorName: {
     fontSize: 14,
-    color: '#555',
+    color: '#666',
   },
   vendorLocation: {
     fontSize: 12,
     color: '#999',
   },
-  editDeleteIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  editIcon: {
-    marginRight: 15,
-  },
-  deleteIcon: {
-    marginRight: 5,
-  },
-  modalContainer: {
+  // Modal Styles
+  centeredView: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    marginTop: 22,
   },
-  modalContent: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    width: '80%',
-    maxHeight: '80%',
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    elevation: 5,
+    width: '80%', // Adjust width as needed
+    paddingBottom: 30, // Increase bottom padding for more space
   },
-  modalTitle: {
-    fontSize: 20,
+  
+  
+
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
   },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 10,
+
+
+  modalPicker: {
+    height: 200, // Adjust height as needed
+    width: '100%',
+    marginTop: -20,
   },
-  inputField: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-  },
-  modalButtons: {
+  
+
+
+
+  
+  modalButtonContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 20,
+    justifyContent: 'space-around',
+    width: '100%',
   },
   modalButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
     borderRadius: 5,
-    marginLeft: 10,
+    padding: 10,
+    elevation: 2,
+    width: '40%',
   },
-  cancelButton: {
-    backgroundColor: 'tomato',
-  },
-  saveButton: {
+  modalDoneButton: {
     backgroundColor: '#007bff',
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
+  modalCloseButton: {
+    backgroundColor: 'tomato',
+  },
+  textStyle: {
+    color: 'white',
     fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  noItemsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+  },
+  noItemsText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
   },
 });
- 
- 
- 
- 
- 
- 
- 
