@@ -58,6 +58,10 @@ export default function VendorEmployeeHome() {
       const vendormemberId = await AsyncStorage.getItem('vendorMemberId');
       const response = await axios.get(`http://192.168.0.114:3000/api/vendorMemberFoodRoutes/getfooditems/${vendormemberId}`);
       
+      if (response.data.length === 0) {
+        Alert.alert('No Food Items Available');
+      }
+  
       // Update food items state with fetched data
       const updatedFoodItems = response.data.map(item => ({
         id: item._id,
@@ -73,25 +77,31 @@ export default function VendorEmployeeHome() {
       
       setFoodItems(updatedFoodItems);
       setFilteredFoodItems(updatedFoodItems); // Set filtered items initially
-
+  
       // Set default location to the first available location
       if (updatedFoodItems.length > 0) {
         setSelectedLocation(updatedFoodItems[0].location[0] || ''); // Default to first location or empty string
+      } else {
+        setSelectedLocation(''); // Reset location if no items are available
       }
     } catch (error) {
-      Alert.alert('No Food Items Available');
+      Alert.alert('Error fetching food items');
+      setFoodItems([]); // Ensure state is cleared on error
+      setFilteredFoodItems([]);
     }
   }, []);
-
+  
   useEffect(() => {
     fetchFoodItems(); // Fetch food items on component mount
   }, [fetchFoodItems]);
-
+  
   useFocusEffect(
     useCallback(() => {
       fetchFoodItems(); // Fetch food items when screen gains focus
     }, [fetchFoodItems])
   );
+  
+
 
   useEffect(() => {
     // Filter foodItems based on selectedFilter, selectedLocation, and searchQuery
@@ -240,6 +250,6 @@ export default function VendorEmployeeHome() {
           </View>
         </View>
       </Modal>
-          </ScrollView>
+    </ScrollView>
   );
 }
