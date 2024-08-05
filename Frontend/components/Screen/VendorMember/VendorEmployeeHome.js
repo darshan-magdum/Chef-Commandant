@@ -85,7 +85,6 @@ export default function VendorEmployeeHome() {
         setSelectedLocation(''); // Reset location if no items are available
       }
     } catch (error) {
-      Alert.alert('Error fetching food items');
       setFoodItems([]); // Ensure state is cleared on error
       setFilteredFoodItems([]);
     }
@@ -161,15 +160,19 @@ export default function VendorEmployeeHome() {
     return Array.from(locationsSet);
   }, [foodItems]);
 
+
+  const hasFoodItems = foodItems.length > 0;
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={openModal}>
-          <View style={styles.locationContainer}>
-            <Text style={styles.locationText}>{selectedLocation || 'Select Location'}</Text>
-            <FeatherIcon name="chevron-down" size={20} color="#007bff" />
-          </View>
-        </TouchableOpacity>
+      {hasFoodItems && (
+          <TouchableOpacity onPress={openModal}>
+            <View style={styles.locationContainer}>
+              <Text style={styles.locationText}>{selectedLocation || 'Select Location'}</Text>
+              <FeatherIcon name="chevron-down" size={20} color="#007bff" />
+            </View>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity onPress={() => navigation.navigate('VendorMemberSiderMenu')}>
           <View style={styles.userCircle}>
             {userData && <Text style={styles.userInitials}>{userData.name ? userData.name.charAt(0).toUpperCase() : ''}</Text>}
