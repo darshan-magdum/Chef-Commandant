@@ -30,8 +30,8 @@ const Card = ({ image, name, category, isVeg, price, availability, date, locatio
       </View>
       <View style={styles.foodBottom}>
         <View style={styles.foodLeft}>
-          <Text style={styles.foodName}>{name}</Text>
-          <Text>{description}</Text>
+          <Text style={styles.foodName}>{name}</Text> 
+          <Text style={styles.vendorName}>{description}</Text>
           
           <FeatherIcon
             name={isVeg ? "circle" : "circle"}
