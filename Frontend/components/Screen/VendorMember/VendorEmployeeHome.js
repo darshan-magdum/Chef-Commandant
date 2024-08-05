@@ -192,6 +192,32 @@ export default function VendorEmployeeHome() {
   );
 
 
+
+  const [foodItem, setFoodItem] = useState([]);
+  useEffect(() => {
+    fetchFoodItems();
+  }, []);
+
+  const fetchFoodItems = async () => {
+    try {
+      const vendormemberId = await AsyncStorage.getItem('vendorMemberId');
+      const response = await axios.get(`http://192.168.0.114:3000/api/vendorMemberFoodRoutes/getfooditems/${vendormemberId}`);
+  
+  
+      // Replace backslashes with forward slashes in image paths
+      const updatedFoodItems = response.data.map(item => ({
+        ...item,
+        foodImage: item.foodImage ? item.foodImage.replace(/\\/g, '/') : null
+      }));
+  
+  
+      setFoodItem(updatedFoodItems);
+    } catch (error) {
+      Alert.alert('No Food Items Available');
+    }
+  };
+  
+
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
