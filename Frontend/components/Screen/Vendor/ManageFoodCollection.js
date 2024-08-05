@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, SafeAreaView, View, Text, TextInput, TouchableOpacity, Modal, FlatList, Image, ScrollView, Alert } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ManageFoodCollection({ navigation }) {
   const [form, setForm] = useState({
@@ -11,7 +12,17 @@ export default function ManageFoodCollection({ navigation }) {
     description: '',
     foodType: '',
     foodImage: null,
+    vendorId: '',
   });
+
+  useEffect(() => {
+    const fetchVendorId = async () => {
+      const storedVendorId = await AsyncStorage.getItem('vendorId');
+      setForm(prevForm => ({ ...prevForm, vendorId: storedVendorId }));
+    };
+    
+    fetchVendorId();
+  }, []);
 
   const [foodTypeModalVisible, setFoodTypeModalVisible] = useState(false);
   const [selectedFoodType, setSelectedFoodType] = useState('');
@@ -55,7 +66,8 @@ export default function ManageFoodCollection({ navigation }) {
 
   const handleSubmit = async () => {
     try {
-      const { name, description, foodType, foodImage } = form;
+  
+      const { name, description, foodType, foodImage ,vendorId } = form;
   
       let formValid = true;
       const newErrors = {
@@ -79,6 +91,7 @@ export default function ManageFoodCollection({ navigation }) {
       formData.append('name', name);
       formData.append('description', description);
       formData.append('foodType', foodType);
+      formData.append('vendor', vendorId);
       
       if (foodImage) {
         const response = await fetch(foodImage.uri);

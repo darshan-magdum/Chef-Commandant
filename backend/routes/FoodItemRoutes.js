@@ -19,16 +19,15 @@ const upload = multer({ storage: storage });
 
 // Route to create a new food item
 router.post("/createfoodtocollection", upload.single('foodImage'), async (req, res) => {
-  console.log('Received File:', req.file); // Debugging: Log file info
-  console.log('Received Body:', req.body); // Debugging: Log form data
+
 
   try {
-    const { name, description, foodType } = req.body;
+    const { name, description, foodType ,  vendor,} = req.body;
     const foodImage = req.file ? req.file.path : null;
 
     // Check if all fields are provided
-    if (!name || !description || !foodType || !foodImage) {
-      return res.status(400).json({ message: 'All fields (name, description, foodType, foodImage) are required' });
+    if (!name || !description || !foodType || !foodImage || !vendor) {
+      return res.status(400).json({ message: 'All fields (name, description, foodType, foodImage ,  vendor) are required' });
     }
 
     const newFoodItem = new FoodItem({
@@ -36,6 +35,7 @@ router.post("/createfoodtocollection", upload.single('foodImage'), async (req, r
       description,
       foodType,
       foodImage,
+      vendor,
     });
 
     const savedFoodItem = await newFoodItem.save();
@@ -107,5 +107,23 @@ router.get("/getallfoodcollection", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch food items", error: error.message });
   }
 });
+
+// Route to get food items by vendorID
+router.get("/getbyvendor/:vendorID", async (req, res) => {
+  try {
+    const { vendorID } = req.params;
+    const foodItems = await FoodItem.find({ vendor: vendorID });
+
+    if (!foodItems.length) {
+      return res.status(404).json({ message: 'No food items found for this vendor' });
+    }
+
+    res.status(200).json(foodItems);
+  } catch (error) {
+    console.error('Error fetching food items by vendorID:', error);
+    res.status(500).json({ message: "Failed to fetch food items by vendorID", error: error.message });
+  }
+});
+
 
 module.exports = router;

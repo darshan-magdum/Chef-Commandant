@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Modal, TextInput, ScrollView, Alert, Platform, KeyboardAvoidingView, Image } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ViewFoodCollection({ navigation }) {
   const [foodItems, setFoodItems] = useState([]);
@@ -48,7 +49,9 @@ export default function ViewFoodCollection({ navigation }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://192.168.0.114:3000/api/fooditemroutes/getallfoodcollection');
+        const vendorId = await AsyncStorage.getItem('vendorId');
+        const response = await axios.get(`http://192.168.0.114:3000/api/fooditemroutes/getbyvendor/${vendorId}`)
+    
         
         // Replace backslashes with forward slashes in image paths
         const updatedFoodItems = response.data.map(item => ({
