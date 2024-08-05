@@ -94,17 +94,27 @@ export default function ViewMembers({ navigation }) {
     }
   };
 
-  const toggleBranchSelection = (branch) => {
-    if (selectedBranchIds.includes(branch)) {
-      setSelectedBranchIds(selectedBranchIds.filter(id => id !== branch));
-    } else {
-      setSelectedBranchIds([...selectedBranchIds, branch]);
-    }
-  };
+  // const toggleBranchSelection = (branch) => {
+  //   if (selectedBranchIds.includes(branch)) {
+  //     setSelectedBranchIds(selectedBranchIds.filter(id => id !== branch));
+  //   } else {
+  //     setSelectedBranchIds([...selectedBranchIds, branch]);
+  //   }
+  // };
 
+  // const isBranchSelected = (branch) => {
+  //   return selectedBranchIds.includes(branch);
+  // };
+
+
+  const toggleBranchSelection = (branch) => {
+    setSelectedBranchIds([branch]);
+  };
+  
   const isBranchSelected = (branch) => {
     return selectedBranchIds.includes(branch);
   };
+  
   useEffect(() => {
     setFilteredVendors(
       vendors.filter(vendor =>

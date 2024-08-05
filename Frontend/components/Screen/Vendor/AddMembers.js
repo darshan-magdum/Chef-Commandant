@@ -87,13 +87,16 @@ export default function AddMembers({ navigation }) {
     setIsModalVisible(!isModalVisible);
   };
 
+
+
   const handleLocationChange = (id) => {
     const updatedLocations = form.locations.map(loc =>
-      loc.id === id ? { ...loc, selected: !loc.selected } : loc
+      loc.id === id ? { ...loc, selected: true } : { ...loc, selected: false }
     );
     setForm(prevForm => ({ ...prevForm, locations: updatedLocations }));
   };
 
+  
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
