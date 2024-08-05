@@ -7,10 +7,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import styles from "./Styles/VendorHomeStyle";
 
-const Card = ({ image, name, type, isVeg, price, availability, vendor, location, searchQuery }) => {
+const Card = ({ image, name, category, isVeg, price, availability, date, location, searchQuery ,description }) => {
   let statusBackgroundColor = availability === 'finished' ? 'red' : '#57AF46'; // Color based on availability
 
   const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase());
+  const formatDate = (dateString) => {
+    const dateObj = new Date(dateString);
+    const day = dateObj.getDate();
+    const month = dateObj.getMonth() + 1; // Months are zero indexed
+    const year = dateObj.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
 
   return matchesSearch ? (
     <View style={styles.foodCard}>
@@ -24,15 +31,23 @@ const Card = ({ image, name, type, isVeg, price, availability, vendor, location,
       <View style={styles.foodBottom}>
         <View style={styles.foodLeft}>
           <Text style={styles.foodName}>{name}</Text>
+          <Text>{description}</Text>
+          
           <FeatherIcon
             name={isVeg ? "circle" : "circle"}
             size={16}
             color="white"
             style={isVeg ? styles.vegIcon : styles.nonVegIcon}
           />
+      
+         
         </View>
+        
+
+        
         <View style={styles.vendorInfo}>
-          <Text style={styles.vendorName}>{vendor}</Text>
+          <Text style={styles.vendorName}>   {formatDate(date)}</Text>
+       
           <Text style={styles.vendorLocation}>{location.join(', ')}</Text>
         </View>
       </View>
@@ -66,13 +81,14 @@ export default function VendorEmployeeHome() {
       const updatedFoodItems = response.data.map(item => ({
         id: item._id,
         name: item.name,
-        type: item.category.toLowerCase(), // Match type with the filter
+        category: item.category.toLowerCase(), // Match type with the filter
         isVeg: item.foodType.toLowerCase() === 'veg',
         price: item.price.toString(),
         image: `http://192.168.0.114:3000/${item.foodImage.replace(/\\/g, '/')}`, // Construct full URL
         availability: item.status.toLowerCase(),
-        vendor: item.vendorId, // Assuming you will fetch vendor name separately if needed
+        date: item.date, // Assuming you will fetch vendor name separately if needed
         location: item.location,
+        description:item.description,
       }));
       
       setFoodItems(updatedFoodItems);
@@ -106,7 +122,7 @@ export default function VendorEmployeeHome() {
     // Filter foodItems based on selectedFilter, selectedLocation, and searchQuery
     const filteredItems = foodItems.filter(
       (item) =>
-        (selectedFilter === 'all' || item.type.includes(selectedFilter.toLowerCase())) &&
+        (selectedFilter === 'all' || item.category.includes(selectedFilter.toLowerCase())) &&
         (selectedLocation === '' || item.location.includes(selectedLocation)) &&
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -141,11 +157,12 @@ export default function VendorEmployeeHome() {
     <Card
       image={item.image}
       name={item.name}
-      type={item.type}
+      category={item.category}
       isVeg={item.isVeg}
       price={item.price}
       availability={item.availability}
-      vendor={item.vendor}
+      date={item.date}
+      description={item.description}
       location={item.location}
       searchQuery={searchQuery}
     />
