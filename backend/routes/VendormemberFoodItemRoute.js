@@ -73,6 +73,26 @@ router.post('/addfooditem', async (req, res) => {
   }
 });
 
+// GET route to fetch all vendor member food items
+router.get('/getallfooditems', async (req, res) => {
+  try {
+    // Query the database for all food items
+    const foodItems = await VendorMemberFoodItem.find();
+
+    // Check if any food items are found
+    if (foodItems.length === 0) {
+      return res.status(404).json({ error: 'No food items found' });
+    }
+
+    // Respond with the found food items
+    res.status(200).json(foodItems);
+  } catch (err) {
+    console.error('Error fetching all food items:', err);
+    res.status(500).json({ error: 'Failed to fetch all food items' });
+  }
+});
+
+
 // GET route to fetch a vendor member food item by vendorId
 router.get('/getfooditems/:vendorId', async (req, res) => {
   const { vendorId } = req.params;
