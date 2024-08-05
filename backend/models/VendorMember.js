@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
+const { VendorSignup } = require('./VendorSignup');
 
 const vendorMemberSchema = new mongoose.Schema({
   locations: {
@@ -33,7 +34,11 @@ const vendorMemberSchema = new mongoose.Schema({
     required: true,
     minlength: 6
   },
-
+  vendor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'VendorSignup', 
+    required: true
+  }
 });
 
 // Static method to find vendor by credentials (email and password)

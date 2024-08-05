@@ -100,8 +100,11 @@ export default function AddMembers({ navigation }) {
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
+ 
     try {
-      // Include selected locations in the data being sent
+      const vendorId = await AsyncStorage.getItem('vendorId');
+      console.log('Vendor ID:', vendorId);
+
       const selectedLocations = form.locations.filter(loc => loc.selected).map(loc => loc.name);
       const formData = {
         name: form.name,
@@ -110,6 +113,7 @@ export default function AddMembers({ navigation }) {
         password: form.password,
         confirmPassword: form.confirmPassword,
         locations: selectedLocations,
+        vendor: vendorId,
       };
 
       // Make API call to add member

@@ -30,7 +30,7 @@ export default function ViewMembers({ navigation }) {
       const vendorId = await AsyncStorage.getItem('vendorId');
       console.log('Fetching user details for userId:', vendorId);
       const [vendorResponse, branchResponse] = await Promise.all([
-        axios.get('http://192.168.0.114:3000/api/vendormember/getallmembers'),
+        axios.get(`http://192.168.0.114:3000/api/vendormember/byvendor/${vendorId}`),
         axios.get(`http://192.168.0.114:3000/api/vendor/vendor/${vendorId}`)
       ]);
       console.log('Vendor Data:', vendorResponse.data); // Log vendor data

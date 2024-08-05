@@ -15,7 +15,8 @@ const vendorMemberSchema = Joi.object({
   password: Joi.string().required().label('Password'),
   confirmPassword: Joi.string().valid(Joi.ref('password')).required().label('Confirm Password')
     .messages({ 'any.only': 'Passwords must match' }),
-  locations: Joi.array().items(Joi.string()).label('locations')
+  locations: Joi.array().items(Joi.string()).label('locations'),
+  vendor: Joi.string().label('Vendor')
 });
 
 // Route: POST /vendormember/signup
@@ -27,7 +28,7 @@ router.post('/signup', async (req, res) => {
       return res.status(400).send({ message: error.details[0].message });
     }
 
-    const { name, email, mobile, password, locations } = req.body;
+    const { name, email, mobile, password, locations, vendor } = req.body;
 
     // Check if vendor member already exists by mobile number
     let existingVendorMember = await VendorMemberSignup.findOne({ mobile });
@@ -55,7 +56,8 @@ router.post('/signup', async (req, res) => {
       email,
       mobile,
       password: hashedPassword,
-      locations
+      locations,
+      vendor
     });
 
     // Save the new vendor member to the database
@@ -81,6 +83,8 @@ router.post('/signup', async (req, res) => {
     }
   }
 });
+
+
 
 // Validation schema for login using Joi
 const vendorMemberLoginSchema = Joi.object({
@@ -238,6 +242,33 @@ router.delete('/:id', async (req, res) => {
 
     // Return success message
     res.status(200).send({ message: 'Vendor member deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: 'Internal Server Error' });
+  }
+});
+
+
+// Route: GET /vendormember/byvendor/:vendorId
+router.get('/byvendor/:vendorId', async (req, res) => {
+  try {
+    const vendorId = req.params.vendorId;
+
+    // Validate if vendorId is a valid ObjectId (assuming MongoDB ObjectId)
+    if (!mongoose.Types.ObjectId.isValid(vendorId)) {
+      return res.status(400).send({ message: 'Invalid vendor ID' });
+    }
+
+    // Find vendor members associated with the provided vendor ID
+    const vendorMembers = await VendorMemberSignup.find({ vendor: vendorId }).select('-password'); // Exclude password from response
+
+    // Check if any vendor members were found
+    if (vendorMembers.length === 0) {
+      return res.status(404).send({ message: 'No vendor members found for this vendor' });
+    }
+
+    // Return the list of vendor members
+    res.status(200).json(vendorMembers);
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: 'Internal Server Error' });
