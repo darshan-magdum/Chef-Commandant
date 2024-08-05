@@ -47,7 +47,7 @@ export default function VendorEmployeeHome() {
   const [foodItems, setFoodItems] = useState([]);
   const [filteredFoodItems, setFilteredFoodItems] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState('City A'); // Default location
+  const [selectedLocation, setSelectedLocation] = useState('');
   const [userData, setUserData] = useState(null);
 
   const openModal = () => setModalVisible(true);
@@ -73,6 +73,11 @@ export default function VendorEmployeeHome() {
       
       setFoodItems(updatedFoodItems);
       setFilteredFoodItems(updatedFoodItems); // Set filtered items initially
+
+      // Set default location to the first available location
+      if (updatedFoodItems.length > 0) {
+        setSelectedLocation(updatedFoodItems[0].location[0] || ''); // Default to first location or empty string
+      }
     } catch (error) {
       Alert.alert('No Food Items Available');
     }
@@ -83,14 +88,15 @@ export default function VendorEmployeeHome() {
   }, []);
 
   useEffect(() => {
-    // Filter foodItems based on selectedFilter and searchQuery
+    // Filter foodItems based on selectedFilter, selectedLocation, and searchQuery
     const filteredItems = foodItems.filter(
       (item) =>
         (selectedFilter === 'all' || item.type.includes(selectedFilter.toLowerCase())) &&
+        (selectedLocation === '' || item.location.includes(selectedLocation)) &&
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredFoodItems(filteredItems);
-  }, [foodItems, selectedFilter, searchQuery]);
+  }, [foodItems, selectedFilter, selectedLocation, searchQuery]);
 
   const fetchUserData = useCallback(async () => {
     try {
@@ -130,12 +136,21 @@ export default function VendorEmployeeHome() {
     />
   );
 
+  // Extract unique locations for Picker
+  const uniqueLocations = useMemo(() => {
+    const locationsSet = new Set();
+    foodItems.forEach(item => {
+      item.location.forEach(loc => locationsSet.add(loc));
+    });
+    return Array.from(locationsSet);
+  }, [foodItems]);
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={openModal}>
           <View style={styles.locationContainer}>
-            <Text style={styles.locationText}>{selectedLocation}</Text>
+            <Text style={styles.locationText}>{selectedLocation || 'Select Location'}</Text>
             <FeatherIcon name="chevron-down" size={20} color="#007bff" />
           </View>
         </TouchableOpacity>
@@ -198,12 +213,8 @@ export default function VendorEmployeeHome() {
               onValueChange={(itemValue) => setSelectedLocation(itemValue)}
               style={styles.modalPicker}
             >
-              {foodItems.map((item) => (
-                <Picker.Item
-                  key={item.id}
-                  label={item.location.join(', ')}
-                  value={item.location.join(', ')}
-                />
+              {uniqueLocations.map((loc, index) => (
+                <Picker.Item key={index} label={loc} value={loc} />
               ))}
             </Picker>
             <View style={styles.modalButtonContainer}>
