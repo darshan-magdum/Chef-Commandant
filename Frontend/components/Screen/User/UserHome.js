@@ -191,7 +191,7 @@ export default function UserHome() {
             </View>
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={() => navigation.navigate('AdminSiderMenu')}>
+        <TouchableOpacity onPress={() => navigation.navigate('UserSiderMenu')}>
           <View style={styles.userCircle}>
             {userData && <Text style={styles.userInitials}>{userData.name ? userData.name.charAt(0).toUpperCase() : ''}</Text>}
           </View>
