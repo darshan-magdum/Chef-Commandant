@@ -124,7 +124,7 @@ export default function UserOrder({ navigation }) {
     if (!validateForm()) {
       return;
     }
-
+  
     try {
       const payload = {
         username: userDetails.name,
@@ -137,12 +137,31 @@ export default function UserOrder({ navigation }) {
         quantity: form.quantity,
         date: form.date,
       };
-
+  
       const response = await axios.post('http://192.168.0.107:3000/api/UserOrdersRoutes/post', payload);
-
+  
       if (response.status === 201) {
         Alert.alert("Order Placed Successfully");
-        // Optionally navigate to another screen or show a success message
+        
+        // Reset the form after successful submission
+        setForm({
+          location: '', // Reset location to initial value
+          foodName: '',
+          description: '',
+          quantity: '',
+          date: null,
+        });
+        
+        // Optionally reset other state if needed
+        setErrors({
+          location: '', 
+          foodName: '',
+          description: '',
+          quantity: '',
+          date: '',
+          apiError: '',
+          numericError: '',
+        });
       } else {
         Alert.alert("Failed to Place Order");
       }
@@ -151,6 +170,7 @@ export default function UserOrder({ navigation }) {
       Alert.alert('Error', 'Failed to place order. Please try again later.');
     }
   };
+  
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
