@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, SafeAreaView, View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, TextInput, TouchableOpacity, ScrollView, Alert, Modal } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -244,7 +244,6 @@ export default function UserOrder({ navigation }) {
             {errors.date ? <Text style={styles.errorText}>{errors.date}</Text> : null}
 
             {showDatePicker && (
-           
               <DateTimePicker
                 value={form.date ? new Date(form.date) : new Date()}
                 mode="date"
@@ -256,7 +255,12 @@ export default function UserOrder({ navigation }) {
           </View>
 
           {/* Location Picker Modal */}
-          {showLocationPicker && (
+          <Modal
+            transparent={true}
+            visible={showLocationPicker}
+            animationType="slide"
+          >
+            <View style={styles.modalBackdrop} />
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Select Location (Branch)</Text>
@@ -285,7 +289,7 @@ export default function UserOrder({ navigation }) {
                 </TouchableOpacity>
               </View>
             </View>
-          )}
+          </Modal>
 
         </View>
 
@@ -375,21 +379,25 @@ const styles = StyleSheet.create({
   pickerItemIcon: {
     marginRight: 10,
   },
-  modalContainer: {
+  modalBackdrop: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
     backgroundColor: '#fff',
     padding: 24,
     borderRadius: 8,
     width: '80%',
+    elevation: 5,
   },
   modalTitle: {
     fontSize: 18,
