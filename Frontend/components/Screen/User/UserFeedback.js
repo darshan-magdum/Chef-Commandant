@@ -23,7 +23,7 @@ export default function UserFeedback({ navigation }) {
       const userId = await AsyncStorage.getItem('userId'); // Retrieve user ID from AsyncStorage
       console.log('Fetching user details for userId:', userId);
 
-      const response = await axios.get(`http://192.168.0.114:3000/api/user/${userId}`); // Fetch user details using user ID
+      const response = await axios.get(`http://192.168.0.107:3000/api/user/${userId}`); // Fetch user details using user ID
       console.log('User Details:', response.data);
 
       if (response.status === 200) {
@@ -83,7 +83,7 @@ export default function UserFeedback({ navigation }) {
       const userId = await AsyncStorage.getItem('userId'); // Retrieve user ID from AsyncStorage
   
       // Submit feedback data to backend 
-      const response = await axios.post('http://192.168.0.114:3000/api/user/feedback/submit-feedback', {
+      const response = await axios.post('http://192.168.0.107:3000/api/user/feedback/submit-feedback', {
         userId,
         username: userData.name, // Ensure userData is available and username is fetched correctly
         mobile: userData.mobile, // Assuming mobile is fetched in userData

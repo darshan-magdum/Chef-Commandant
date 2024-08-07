@@ -48,7 +48,7 @@ export default function ChangePassword({ navigation }) {
    
       const adminId = await AsyncStorage.getItem('adminId');
 
-      const response = await axios.put(`http://192.168.0.114:3000/api/admin/password/${adminId}`, {
+      const response = await axios.put(`http://192.168.0.107:3000/api/admin/password/${adminId}`, {
         newPassword,
       });
 

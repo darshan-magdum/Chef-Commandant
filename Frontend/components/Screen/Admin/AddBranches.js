@@ -42,7 +42,7 @@ export default function AddBranches({ navigation }) {
     try {
       const adminId = await AsyncStorage.getItem('adminId'); 
       console.log('Fetching user details for userId:', adminId);
-      const response = await axios.get(`http://192.168.0.114:3000/api/admin/${adminId}`);  
+      const response = await axios.get(`http://192.168.0.107:3000/api/admin/${adminId}`);  
       console.log('User Details:', response.data);
 
       if (response.status === 200) {
@@ -93,7 +93,7 @@ export default function AddBranches({ navigation }) {
         companyName
       };
 
-      const response = await axios.post('http://192.168.0.114:3000/api/branchRoutes/addbranch', branchData);
+      const response = await axios.post('http://192.168.0.107:3000/api/branchRoutes/addbranch', branchData);
 
       if (response.status === 201) {
         Alert.alert('Success', 'Branch added successfully');

@@ -17,7 +17,7 @@ export default function VendorViewProfile({ navigation }) {
     try {
       const vendorId = await AsyncStorage.getItem('vendorId');
       console.log('Fetching vendor details for vendorId:', vendorId);
-      const response = await axios.get(`http://192.168.0.114:3000/api/vendor/vendor/${vendorId}`);
+      const response = await axios.get(`http://192.168.0.107:3000/api/vendor/vendor/${vendorId}`);
       console.log('User Detailshh:', response.data);
 
       if (response.status === 200) {

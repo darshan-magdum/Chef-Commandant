@@ -62,7 +62,7 @@ export default function AddFoodItems({ navigation }) {
   const fetchUserData = async () => {
     try {
       const vendormemberId = await AsyncStorage.getItem('vendorMemberId'); 
-      const response = await axios.get(`http://192.168.0.114:3000/api/vendormember/${vendormemberId}`);
+      const response = await axios.get(`http://192.168.0.107:3000/api/vendormember/${vendormemberId}`);
       if (response.status === 200) {
         setUserData(response.data); // Store user data including locations
       }
@@ -114,7 +114,7 @@ export default function AddFoodItems({ navigation }) {
 
         console.log('Submitting food item with:', payload);
 
-        const response = await axios.post('http://192.168.0.114:3000/api/vendorMemberFoodRoutes/addfooditem', payload);
+        const response = await axios.post('http://192.168.0.107:3000/api/vendorMemberFoodRoutes/addfooditem', payload);
 
         console.log('Response from server:', response.data);
         Alert.alert('Success', response.data.message);
@@ -229,7 +229,7 @@ export default function AddFoodItems({ navigation }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://192.168.0.114:3000/api/fooditemroutes/getallfoodcollection');
+        const response = await axios.get('http://192.168.0.107:3000/api/fooditemroutes/getallfoodcollection');
         setFoodCollection(response.data);
         const names = response.data.map(item => item.name);
         setFoodNames(names);

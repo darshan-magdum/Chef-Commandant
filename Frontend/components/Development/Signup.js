@@ -95,7 +95,7 @@ export default function Signup() {
       const token = await AsyncStorage.getItem('token');
   
       // Make POST request with token in headers
-      const response = await axios.post('http://192.168.0.114:3000/api/user/Usersignup', form, {
+      const response = await axios.post('http://192.168.0.107:3000/api/user/Usersignup', form, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',

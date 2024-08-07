@@ -26,8 +26,8 @@ export default function ViewVendors({ navigation }) {
   const fetchData = async () => {
     try {
       const [vendorResponse, branchResponse] = await Promise.all([
-        axios.get('http://192.168.0.114:3000/api/vendor/getallvendor'),
-        axios.get('http://192.168.0.114:3000/api/branchRoutes/viewallbranch')
+        axios.get('http://192.168.0.107:3000/api/vendor/getallvendor'),
+        axios.get('http://192.168.0.107:3000/api/branchRoutes/viewallbranch')
       ]);
       console.log('Vendor Data:', vendorResponse.data); // Log vendor data
       setVendors(vendorResponse.data);
@@ -56,7 +56,7 @@ export default function ViewVendors({ navigation }) {
 
   const handleConfirmDelete = async () => {
     try {
-      await axios.delete(`http://192.168.0.114:3000/api/vendor/${selectedVendor._id}`);
+      await axios.delete(`http://192.168.0.107:3000/api/vendor/${selectedVendor._id}`);
       const updatedVendors = vendors.filter(vendor => vendor._id !== selectedVendor._id);
       setVendors(updatedVendors);
       setFilteredVendors(updatedVendors);
@@ -75,7 +75,7 @@ export default function ViewVendors({ navigation }) {
         mobile: editMobile,
         locations: selectedBranchIds
       };
-      await axios.put(`http://192.168.0.114:3000/api/vendor/${selectedVendor._id}`, updatedVendor);
+      await axios.put(`http://192.168.0.107:3000/api/vendor/${selectedVendor._id}`, updatedVendor);
       const updatedVendors = vendors.map(vendor =>
         vendor._id === selectedVendor._id
           ? { ...vendor, ...updatedVendor }

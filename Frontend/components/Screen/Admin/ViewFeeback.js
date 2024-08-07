@@ -21,7 +21,7 @@ export default function ViewFeedback({ navigation }) {
 
   const fetchFeedback = async () => {
     try {
-      const response = await axios.get('http://192.168.0.114:3000/api/user/feedback/get-all-feedback');
+      const response = await axios.get('http://192.168.0.107:3000/api/user/feedback/get-all-feedback');
       setOriginalFeedbackList(response.data);
       setFeedbackList(response.data);
       setLoading(false);
@@ -69,7 +69,7 @@ export default function ViewFeedback({ navigation }) {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://192.168.0.114:3000/api/user/feedback/delete-feedback/${deleteFeedbackId}`);
+      await axios.delete(`http://192.168.0.107:3000/api/user/feedback/delete-feedback/${deleteFeedbackId}`);
       // Refetch feedback after deletion
       fetchFeedback();
       setShowDeleteModal(false);

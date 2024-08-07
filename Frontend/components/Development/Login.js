@@ -59,7 +59,7 @@ export default function Login() {
   
     try {
       // Attempt user login
-      const userResponse = await axios.post('http://192.168.0.114:3000/api/user/Userlogin', form);
+      const userResponse = await axios.post('http://192.168.0.107:3000/api/user/Userlogin', form);
       const { token, userId, message } = userResponse.data;
   
       // Store token and user ID in AsyncStorage
@@ -73,7 +73,7 @@ export default function Login() {
     } catch (userError) {
       try {
         // Attempt admin login if user login fails
-        const adminResponse = await axios.post('http://192.168.0.114:3000/api/admin/login', form);
+        const adminResponse = await axios.post('http://192.168.0.107:3000/api/admin/login', form);
         const { token, adminId, message } = adminResponse.data;
   
         // Store token and admin ID in AsyncStorage
@@ -87,7 +87,7 @@ export default function Login() {
       } catch (adminError) {
         try {
           // Attempt vendor login if admin login fails
-          const vendorResponse = await axios.post('http://192.168.0.114:3000/api/vendor/login', form);
+          const vendorResponse = await axios.post('http://192.168.0.107:3000/api/vendor/login', form);
           const { token, vendorId, message } = vendorResponse.data;
   
           // Store token and vendor ID in AsyncStorage
@@ -101,7 +101,7 @@ export default function Login() {
         } catch (vendorError) {
           try {
             // Attempt vendor employee login if vendor login fails
-            const vendorEmployeeResponse = await axios.post('http://192.168.0.114:3000/api/vendormember/login', form);
+            const vendorEmployeeResponse = await axios.post('http://192.168.0.107:3000/api/vendormember/login', form);
             const { token, vendorMemberId, message } = vendorEmployeeResponse.data;
             console.log("vendorEmployeeResponse.data;",vendorEmployeeResponse.data)
   

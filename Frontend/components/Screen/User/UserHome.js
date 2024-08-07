@@ -70,7 +70,7 @@ export default function UserHome() {
 
   const fetchFoodItems = useCallback(async () => {
     try {
-      const response = await axios.get('http://192.168.0.114:3000/api/vendorMemberFoodRoutes/getallfooditems');
+      const response = await axios.get('http://192.168.0.107:3000/api/vendorMemberFoodRoutes/getallfooditems');
       
       if (response.data.length === 0) {
         Alert.alert('No Food Items Available');
@@ -83,7 +83,7 @@ export default function UserHome() {
         category: item.category.toLowerCase(), // Match type with the filter
         isVeg: item.foodType.toLowerCase() === 'veg',
         price: item.price.toString(),
-        image: `http://192.168.0.114:3000/${item.foodImage ? item.foodImage.replace(/\\/g, '/') : ''}`, // Construct full URL if image is present
+        image: `http://192.168.0.107:3000/${item.foodImage ? item.foodImage.replace(/\\/g, '/') : ''}`, // Construct full URL if image is present
         availability: item.status.toLowerCase(),
         date: item.date, // Assuming you will fetch vendor name separately if needed
         location: item.location,
@@ -133,7 +133,7 @@ export default function UserHome() {
     try {
       const userId = await AsyncStorage.getItem('userId');
       console.log("userId",userId)
-      const response = await axios.get(`http://192.168.0.114:3000/api/user/${userId}`); 
+      const response = await axios.get(`http://192.168.0.107:3000/api/user/${userId}`); 
       if (response.status === 200) {
         setUserData(response.data);
       } else {

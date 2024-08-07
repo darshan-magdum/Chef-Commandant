@@ -32,7 +32,7 @@ export default function ViewallOrder({ navigation }) {
 
   const fetchFoodOrders = async () => {
     try {
-      const response = await axios.get('http://192.168.0.114:3000/api/UserOrdersRoutes/getallorder');
+      const response = await axios.get('http://192.168.0.107:3000/api/UserOrdersRoutes/getallorder');
       // Reverse the array of orders before setting state
       const reversedOrders = response.data.reverse();
       setFoodOrders(reversedOrders);

@@ -71,7 +71,7 @@ export default function VendorEmployeeHome() {
   const fetchFoodItems = useCallback(async () => {
     try {
       const vendormemberId = await AsyncStorage.getItem('vendorMemberId');
-      const response = await axios.get(`http://192.168.0.114:3000/api/vendorMemberFoodRoutes/getfooditems/${vendormemberId}`);
+      const response = await axios.get(`http://192.168.0.107:3000/api/vendorMemberFoodRoutes/getfooditems/${vendormemberId}`);
       
       if (response.data.length === 0) {
         Alert.alert('No Food Items Available');
@@ -84,7 +84,7 @@ export default function VendorEmployeeHome() {
         category: item.category.toLowerCase(), // Match type with the filter
         isVeg: item.foodType.toLowerCase() === 'veg',
         price: item.price.toString(),
-        image: `http://192.168.0.114:3000/${item.foodImage.replace(/\\/g, '/')}`, // Construct full URL
+        image: `http://192.168.0.107:3000/${item.foodImage.replace(/\\/g, '/')}`, // Construct full URL
         availability: item.status.toLowerCase(),
         date: item.date, // Assuming you will fetch vendor name separately if needed
         location: item.location,
@@ -132,7 +132,7 @@ export default function VendorEmployeeHome() {
   const fetchUserData = useCallback(async () => {
     try {
       const vendormemberId = await AsyncStorage.getItem('vendorMemberId');
-      const response = await axios.get(`http://192.168.0.114:3000/api/vendormember/${vendormemberId}`);
+      const response = await axios.get(`http://192.168.0.107:3000/api/vendormember/${vendormemberId}`);
       if (response.status === 200) {
         setUserData(response.data);
       } else {

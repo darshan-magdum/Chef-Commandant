@@ -17,7 +17,7 @@ export default function AdminProfileView({ navigation }) {
     try {
       const adminId = await AsyncStorage.getItem('adminId'); // Retrieve user ID from AsyncStorage
       console.log('Fetching user details for userId:', adminId);
-      const response = await axios.get(`http://192.168.0.114:3000/api/admin/${adminId}`);  // Fetch user details using user ID
+      const response = await axios.get(`http://192.168.0.107:3000/api/admin/${adminId}`);  // Fetch user details using user ID
       console.log('User Detailshh:', response.data);
 
       if (response.status === 200) {

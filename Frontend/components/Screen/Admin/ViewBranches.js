@@ -33,7 +33,7 @@ export default ViewBranches = ({ navigation }) => {
   // Function to fetch all branches
   const fetchBranches = async () => {
     try {
-      const response = await axios.get('http://192.168.0.114:3000/api/branchRoutes/viewallbranch');
+      const response = await axios.get('http://192.168.0.107:3000/api/branchRoutes/viewallbranch');
       console.log('Fetched Branches:', response.data);
       setBranches(response.data);
     } catch (error) {
@@ -60,7 +60,7 @@ export default ViewBranches = ({ navigation }) => {
   // Function to confirm delete action
   const handleConfirmDelete = async () => {
     try {
-      await axios.delete(`http://192.168.0.114:3000/api/branchRoutes/deletebranch/${selectedBranch._id}`);
+      await axios.delete(`http://192.168.0.107:3000/api/branchRoutes/deletebranch/${selectedBranch._id}`);
       const updatedBranches = branches.filter(b => b._id !== selectedBranch._id);
       setBranches(updatedBranches);
       setDeleteModalVisible(false);
@@ -101,7 +101,7 @@ export default ViewBranches = ({ navigation }) => {
           branch: editBranchName
         };
 
-        const response = await axios.put(`http://192.168.0.114:3000/api/branchRoutes/editbranch/${selectedBranch._id}`, updatedBranchData);
+        const response = await axios.put(`http://192.168.0.107:3000/api/branchRoutes/editbranch/${selectedBranch._id}`, updatedBranchData);
 
         if (response.status === 200) {
           const updatedBranches = branches.map(b =>

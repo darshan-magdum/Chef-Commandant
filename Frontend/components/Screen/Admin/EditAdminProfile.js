@@ -25,7 +25,7 @@ export default function EditAdminProfile({ navigation }) {
     try {
       const adminId = await AsyncStorage.getItem('adminId');
       console.log('Fetching admin details for adminId:', adminId);
-      const response = await axios.get(`http://192.168.0.114:3000/api/admin/${adminId}`);
+      const response = await axios.get(`http://192.168.0.107:3000/api/admin/${adminId}`);
       console.log('Admin Details:', response.data);
       if (response.status === 200) {
         const { companyName, contactNo } = response.data;
@@ -70,7 +70,7 @@ export default function EditAdminProfile({ navigation }) {
         setErrors({ ...errors, companyName: '', contactNo: '' });
       }
 
-      const response = await axios.put(`http://192.168.0.114:3000/api/admin/${adminId}`, { companyName, contactNo });
+      const response = await axios.put(`http://192.168.0.107:3000/api/admin/${adminId}`, { companyName, contactNo });
 
       if (response.status === 200) {
         Alert.alert('Profile updated successfully');

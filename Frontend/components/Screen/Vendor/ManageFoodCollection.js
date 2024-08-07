@@ -99,7 +99,7 @@ export default function ManageFoodCollection({ navigation }) {
         formData.append('foodImage', blob, foodImage.fileName || 'photo.jpg');
       }
   
-      const response = await axios.post('http://192.168.0.114:3000/api/fooditemroutes/createfoodtocollection', formData, {
+      const response = await axios.post('http://192.168.0.107:3000/api/fooditemroutes/createfoodtocollection', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

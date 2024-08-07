@@ -84,7 +84,7 @@ export default function UserOrder({ navigation }) {
     try {
       const userId = await AsyncStorage.getItem('userId'); // Retrieve user ID from AsyncStorage
 
-      const response = await axios.get(`http://192.168.0.114:3000/api/user/${userId}`); // Fetch user details using user ID
+      const response = await axios.get(`http://192.168.0.107:3000/api/user/${userId}`); // Fetch user details using user ID
 
       if (response.status === 200) {
         const { name, mobile, email, userId } = response.data;
@@ -125,7 +125,7 @@ export default function UserOrder({ navigation }) {
         date: form.date,
       };
   
-      const response = await axios.post('http://192.168.0.114:3000/api/UserOrdersRoutes/post', payload);
+      const response = await axios.post('http://192.168.0.107:3000/api/UserOrdersRoutes/post', payload);
   
       if (response.status === 201) {
         Alert.alert("Order Placed Successfully");
