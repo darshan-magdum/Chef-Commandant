@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, FlatList, ActivityIndicator } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ViewallOrder({ navigation }) {
   const [foodOrders, setFoodOrders] = useState([]);
@@ -11,10 +12,46 @@ export default function ViewallOrder({ navigation }) {
   const itemsPerPage = 10; // Number of items per page
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [vendorLocation, setVendorLocation] = useState([]);
 
   useEffect(() => {
-    fetchFoodOrders();
+    fetchVendorData();
   }, []);
+
+  const fetchVendorData = async () => {
+    try {
+      const vendorId = await AsyncStorage.getItem('vendorId');
+      console.log('Fetching vendor details for vendorId:', vendorId);
+      const response = await axios.get(`http://192.168.0.107:3000/api/vendor/vendor/${vendorId}`);
+      console.log('Vendor Details:', response.data);
+      // Set vendor locations
+      setVendorLocation(response.data.locations);
+      // Fetch food orders after fetching vendor details
+      fetchFoodOrders(response.data.locations);
+    } catch (error) {
+      console.error('Error fetching vendor details:', error);
+      setLoading(false);
+    }
+  };
+
+  const fetchFoodOrders = async (locations) => {
+    try {
+      const response = await axios.get('http://192.168.0.107:3000/api/UserOrdersRoutes/getallorder');
+      // Filter orders based on vendor locations
+      const filteredOrders = response.data.filter(order =>
+        locations.includes(order.userlocation)
+      );
+      // Reverse the array of orders before setting state
+      const reversedOrders = filteredOrders.reverse();
+      setFoodOrders(reversedOrders);
+      setFilteredFoodOrders(reversedOrders);
+      setLoading(false);
+      setTotalPages(Math.ceil(reversedOrders.length / itemsPerPage));
+    } catch (error) {
+      console.error('Error fetching food orders:', error);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (searchQuery.trim() !== '') {
@@ -29,21 +66,6 @@ export default function ViewallOrder({ navigation }) {
     }
     setCurrentPage(1);
   }, [searchQuery, foodOrders]);
-
-  const fetchFoodOrders = async () => {
-    try {
-      const response = await axios.get('http://192.168.0.107:3000/api/UserOrdersRoutes/getallorder');
-      // Reverse the array of orders before setting state
-      const reversedOrders = response.data.reverse();
-      setFoodOrders(reversedOrders);
-      setLoading(false);
-      setTotalPages(Math.ceil(reversedOrders.length / itemsPerPage));
-    } catch (error) {
-      console.error('Error fetching food orders:', error);
-      setLoading(false);
-    }
-  };
-  
 
   const handleSearch = (text) => {
     setSearchQuery(text);
@@ -60,7 +82,6 @@ export default function ViewallOrder({ navigation }) {
     const year = dateObj.getFullYear();
     return `${day}-${month}-${year}`;
   };
-
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
