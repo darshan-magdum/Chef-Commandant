@@ -229,7 +229,9 @@ export default function AddFoodItems({ navigation }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://192.168.0.112:3000/api/fooditemroutes/getallfoodcollection');
+        const vendor = await AsyncStorage.getItem('vendor');
+        const response = await axios.get(`http://192.168.0.112:3000/api/fooditemroutes/getbyvendor/${vendor}`);
+    
         setFoodCollection(response.data);
         const names = response.data.map(item => item.name);
         setFoodNames(names);

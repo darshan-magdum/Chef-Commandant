@@ -38,6 +38,7 @@ export default function Login() {
       general: '',
     };
   
+    // Validation
     if (!form.email) {
       newError.email = 'Email Address is required';
       valid = false;
@@ -62,64 +63,86 @@ export default function Login() {
       const userResponse = await axios.post('http://192.168.0.112:3000/api/user/Userlogin', form);
       const { token, userId, message } = userResponse.data;
   
-      // Store token and user ID in AsyncStorage
       await AsyncStorage.setItem('token', token);
       await AsyncStorage.setItem('userId', userId);
+      await AsyncStorage.removeItem('adminToken');
+      await AsyncStorage.removeItem('adminId');
+      await AsyncStorage.removeItem('vendorToken');
+      await AsyncStorage.removeItem('vendorId');
+      await AsyncStorage.removeItem('vendorMemberToken');
+      await AsyncStorage.removeItem('vendorMemberId');
   
       setForm({ email: '', password: '' });
       Alert.alert(message);
-      navigation.navigate('UserHome'); // Navigate to user home screen after successful login
-  
+      navigation.navigate('UserHome');
+      
     } catch (userError) {
       try {
         // Attempt admin login if user login fails
         const adminResponse = await axios.post('http://192.168.0.112:3000/api/admin/login', form);
         const { token, adminId, message } = adminResponse.data;
   
-        // Store token and admin ID in AsyncStorage
         await AsyncStorage.setItem('adminToken', token);
         await AsyncStorage.setItem('adminId', adminId);
+        await AsyncStorage.removeItem('token');
+        await AsyncStorage.removeItem('userId');
+        await AsyncStorage.removeItem('vendorToken');
+        await AsyncStorage.removeItem('vendorId');
+        await AsyncStorage.removeItem('vendorMemberToken');
+        await AsyncStorage.removeItem('vendorMemberId');
   
         setForm({ email: '', password: '' });
         Alert.alert(message);
-        navigation.navigate('AdminHome'); // Navigate to admin home screen after successful login
-  
+        navigation.navigate('AdminHome');
+        
       } catch (adminError) {
         try {
           // Attempt vendor login if admin login fails
           const vendorResponse = await axios.post('http://192.168.0.112:3000/api/vendor/login', form);
-          const { token, vendorId, message } = vendorResponse.data;
+          const { token, vendorId, vendor, message } = vendorResponse.data;
   
-          // Store token and vendor ID in AsyncStorage
           await AsyncStorage.setItem('vendorToken', token);
           await AsyncStorage.setItem('vendorId', vendorId);
+          await AsyncStorage.setItem('vendor', vendor);  // Storing vendor info
+          await AsyncStorage.removeItem('token');
+          await AsyncStorage.removeItem('userId');
+          await AsyncStorage.removeItem('adminToken');
+          await AsyncStorage.removeItem('adminId');
+          await AsyncStorage.removeItem('vendorMemberToken');
+          await AsyncStorage.removeItem('vendorMemberId');
   
           setForm({ email: '', password: '' });
           Alert.alert(message);
-          navigation.navigate('VendorHome'); // Navigate to vendor home screen after successful login
-  
+          navigation.navigate('VendorHome');
+          
         } catch (vendorError) {
           try {
             // Attempt vendor employee login if vendor login fails
             const vendorEmployeeResponse = await axios.post('http://192.168.0.112:3000/api/vendormember/login', form);
-            const { token, vendorMemberId, message } = vendorEmployeeResponse.data;
-            console.log("vendorEmployeeResponse.data;",vendorEmployeeResponse.data)
+            const { token, vendorMemberId, vendor, message } = vendorEmployeeResponse.data;
   
-            // Store token and vendor employee ID in AsyncStorage
             await AsyncStorage.setItem('vendorMemberToken', token);
             await AsyncStorage.setItem('vendorMemberId', vendorMemberId);
-            navigation.navigate('VendorEmployeeHome');
+            await AsyncStorage.setItem('vendor', vendor);  // Storing vendor info
+            await AsyncStorage.removeItem('token');
+            await AsyncStorage.removeItem('userId');
+            await AsyncStorage.removeItem('adminToken');
+            await AsyncStorage.removeItem('adminId');
+            await AsyncStorage.removeItem('vendorToken');
+            await AsyncStorage.removeItem('vendorId');
   
             setForm({ email: '', password: '' });
             Alert.alert(message);
-          } 
-          catch (vendorEmployeeError) {
+            navigation.navigate('VendorEmployeeHome');
+            
+          } catch (vendorEmployeeError) {
             setError({ ...newError, general: vendorEmployeeError.response?.data?.message || 'An error occurred' });
           }
         }
       }
     }
   };
+  
   
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

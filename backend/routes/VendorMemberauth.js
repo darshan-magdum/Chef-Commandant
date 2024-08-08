@@ -16,7 +16,7 @@ const vendorMemberSchema = Joi.object({
   confirmPassword: Joi.string().valid(Joi.ref('password')).required().label('Confirm Password')
     .messages({ 'any.only': 'Passwords must match' }),
   locations: Joi.array().items(Joi.string()).label('locations'),
-  vendor: Joi.string().label('Vendor')
+  vendor: Joi.string().required().label('Vendor') 
 });
 
 // Route: POST /vendormember/signup
@@ -67,7 +67,7 @@ router.post('/signup', async (req, res) => {
     const token = jwt.sign({ vendorMemberId: newVendorMember._id }, jwtkey);
 
     // Return token and vendor member ID
-    res.status(201).send({ token, vendorMemberId: newVendorMember._id, vendor,message: 'Vendor member registered successfully' });
+    res.status(201).send({ token, vendorMemberId: newVendorMember._id,message: 'Vendor member registered successfully' });
   } catch (error) {
     if (error.code === 11000 && error.keyPattern && error.keyValue) {
       if (error.keyPattern.mobile) {
@@ -110,7 +110,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ vendorMemberId: vendorMember._id }, jwtkey);
 
     // Return token and vendor member ID
-    res.status(200).send({ token, vendorMemberId: vendorMember._id, message: 'Login successful' });
+    res.status(200).send({ token, vendorMemberId: vendorMember._id,vendor: vendorMember.vendor._id, message: 'Login successful' });
   } catch (error) {
     console.error(error);
     if (error.message === 'Invalid email or password') {

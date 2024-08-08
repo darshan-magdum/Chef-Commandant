@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const Joi = require('joi');
-const { VendorSignup } = require('./VendorSignup');
 
 const vendorMemberSchema = new mongoose.Schema({
   locations: {
@@ -41,21 +38,21 @@ const vendorMemberSchema = new mongoose.Schema({
   }
 });
 
-// Static method to find vendor by credentials (email and password)
+// Static method to find vendor member by credentials (email and password)
 vendorMemberSchema.statics.findByCredentials = async function (email, password) {
-  const vendorempolyee = await this.findOne({ email });
+  const vendorMember = await this.findOne({ email }).populate('vendor'); // Populate the vendor field
 
-  if (!vendorempolyee) {
+  if (!vendorMember) {
     throw new Error('Invalid email or password');
   }
 
-  const isPasswordMatch = await bcrypt.compare(password, vendorempolyee.password);
+  const isPasswordMatch = await bcrypt.compare(password, vendorMember.password);
 
   if (!isPasswordMatch) {
     throw new Error('Invalid email or password');
   }
 
-  return vendorempolyee;
+  return vendorMember;
 };
 
 const VendorMemberSignup = mongoose.model('VendorMemberSignup', vendorMemberSchema);
