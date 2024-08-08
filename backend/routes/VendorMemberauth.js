@@ -67,7 +67,7 @@ router.post('/signup', async (req, res) => {
     const token = jwt.sign({ vendorMemberId: newVendorMember._id }, jwtkey);
 
     // Return token and vendor member ID
-    res.status(201).send({ token, vendorMemberId: newVendorMember._id, message: 'Vendor member registered successfully' });
+    res.status(201).send({ token, vendorMemberId: newVendorMember._id, vendor,message: 'Vendor member registered successfully' });
   } catch (error) {
     if (error.code === 11000 && error.keyPattern && error.keyValue) {
       if (error.keyPattern.mobile) {
