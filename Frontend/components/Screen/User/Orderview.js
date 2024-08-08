@@ -40,7 +40,7 @@ export default function Orderview({ navigation }) {
   const fetchOrderDetails = async () => {
     try {
       const userId = await AsyncStorage.getItem('userId');
-      const response = await axios.get(`http://192.168.0.107:3000/api/UserOrdersRoutes/${userId}`);
+      const response = await axios.get(`http://192.168.0.112:3000/api/UserOrdersRoutes/${userId}`);
   
       if (response.status === 200) {
         const reversedOrders = response.data.reverse(); // Reverse the array to get newest first
@@ -84,7 +84,7 @@ export default function Orderview({ navigation }) {
       };
 
       // Perform API call to update the order
-      const response = await axios.put(`http://192.168.0.107:3000/api/UserOrdersRoutes/edit/${selectedOrder._id}`, editedOrder);
+      const response = await axios.put(`http://192.168.0.112:3000/api/UserOrdersRoutes/edit/${selectedOrder._id}`, editedOrder);
 
       if (response.status === 200) {
         fetchOrderDetails(); // Refresh order list after edit
@@ -108,7 +108,7 @@ export default function Orderview({ navigation }) {
 
   const handleConfirmDelete = async () => {
     try {
-      const response = await axios.delete(`http://192.168.0.107:3000/api/UserOrdersRoutes/delete/${selectedOrder._id}`);
+      const response = await axios.delete(`http://192.168.0.112:3000/api/UserOrdersRoutes/delete/${selectedOrder._id}`);
 
       if (response.status === 200) {
         fetchOrderDetails(); // Refresh order list after delete

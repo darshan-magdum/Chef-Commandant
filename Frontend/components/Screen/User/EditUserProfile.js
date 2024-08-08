@@ -25,7 +25,7 @@ export default function EditUserProfile({ navigation }) {
     try {
       const userId = await AsyncStorage.getItem('userId'); // Retrieve user ID from AsyncStorage
 
-      const response = await axios.get(`http://192.168.0.107:3000/api/user/${userId}`); // Fetch user details using user ID
+      const response = await axios.get(`http://192.168.0.112:3000/api/user/${userId}`); // Fetch user details using user ID
 
       if (response.status === 200) {
         const { name, mobile } = response.data;
@@ -73,7 +73,7 @@ export default function EditUserProfile({ navigation }) {
         setErrors({ ...errors, name: '', mobile: '' });
       }
   
-      const response = await axios.put(`http://192.168.0.107:3000/api/user/${userId}`, { name, mobile });
+      const response = await axios.put(`http://192.168.0.112:3000/api/user/${userId}`, { name, mobile });
   
       if (response.status === 200) {
         Alert.alert('Profile updated successfully');
