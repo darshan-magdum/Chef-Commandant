@@ -18,7 +18,7 @@ export default function ViewFoodItems({ navigation }) {
   const fetchFoodItems = async () => {
     try {
       const vendormemberId = await AsyncStorage.getItem('vendorMemberId');
-      const response = await axios.get(`http://192.168.0.112:3000/api/vendorMemberFoodRoutes/getfooditems/${vendormemberId}`);
+      const response = await axios.get(`http://localhost:3000/api/vendorMemberFoodRoutes/getfooditems/${vendormemberId}`);
   
   
       // Replace backslashes with forward slashes in image paths
@@ -43,7 +43,7 @@ export default function ViewFoodItems({ navigation }) {
 
   const handleConfirmDelete = async () => {
     try {
-      const response = await axios.delete(`http://192.168.0.112:3000/api/vendorMemberFoodRoutes/deletefooditem/${selectedFoodItem._id}`);
+      const response = await axios.delete(`http://localhost:3000/api/vendorMemberFoodRoutes/deletefooditem/${selectedFoodItem._id}`);
       if (response.status === 200) {
         const updatedFoodItems = foodItems.filter(item => item._id !== selectedFoodItem._id);
         Alert.alert('Food Item deleted Successfully');
@@ -109,7 +109,7 @@ export default function ViewFoodItems({ navigation }) {
     <View key={filteredFoodItems[currentPage - 1]._id} style={styles.card}>
       {filteredFoodItems[currentPage - 1].foodImage ? (
         <Image
-          source={{ uri: `http://192.168.0.112:3000/${filteredFoodItems[currentPage - 1].foodImage}` }}
+          source={{ uri: `http://localhost:3000/${filteredFoodItems[currentPage - 1].foodImage}` }}
           style={styles.cardImage}
           resizeMode="cover"
           onError={(e) => console.error('Image Load Error:', e.nativeEvent.error)}

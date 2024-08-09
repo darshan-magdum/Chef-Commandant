@@ -22,7 +22,7 @@ export default function ViewallOrder({ navigation }) {
     try {
       const vendorId = await AsyncStorage.getItem('vendorId');
       console.log('Fetching vendor details for vendorId:', vendorId);
-      const response = await axios.get(`http://192.168.0.112:3000/api/vendor/vendor/${vendorId}`);
+      const response = await axios.get(`http://localhost:3000/api/vendor/vendor/${vendorId}`);
       console.log('Vendor Details:', response.data);
       // Set vendor locations
       setVendorLocation(response.data.locations);
@@ -36,7 +36,7 @@ export default function ViewallOrder({ navigation }) {
 
   const fetchFoodOrders = async (locations) => {
     try {
-      const response = await axios.get('http://192.168.0.112:3000/api/UserOrdersRoutes/getallorder');
+      const response = await axios.get('http://localhost:3000/api/UserOrdersRoutes/getallorder');
       // Filter orders based on vendor locations
       const filteredOrders = response.data.filter(order =>
         locations.includes(order.userlocation)

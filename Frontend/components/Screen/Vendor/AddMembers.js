@@ -30,7 +30,7 @@ export default function AddMembers({ navigation }) {
     try {
       const vendorId = await AsyncStorage.getItem('vendorId');
       console.log('Fetching user details for userId:', vendorId);
-      const response = await axios.get(`http://192.168.0.112:3000/api/vendor/vendor/${vendorId}`);
+      const response = await axios.get(`http://localhost:3000/api/vendor/vendor/${vendorId}`);
       console.log('User Details:', response.data);
 
       if (response.status === 200) {
@@ -117,7 +117,7 @@ export default function AddMembers({ navigation }) {
       };
 
       // Make API call to add member
-      const response = await axios.post('http://192.168.0.112:3000/api/vendormember/signup', formData);
+      const response = await axios.post('http://localhost:3000/api/vendormember/signup', formData);
       Alert.alert('Success', 'Member added successfully');
       navigation.navigate('SuccessScreen');
     } catch (error) {

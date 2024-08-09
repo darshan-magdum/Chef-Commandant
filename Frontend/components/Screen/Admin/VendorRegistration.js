@@ -25,7 +25,7 @@ export default function VendorRegistration({ navigation }) {
 
   const fetchBranches = async () => {
     try {
-      const response = await axios.get('http://192.168.0.112:3000/api/branchRoutes/viewallbranch');
+      const response = await axios.get('http://localhost:3000/api/branchRoutes/viewallbranch');
       const branches = response.data;  // Assuming API response is an array of branch objects
       const initialLocations = branches.map(branch => ({ id: branch._id, name: branch.branch, selected: false }));
       setForm({ ...form, locations: initialLocations });
@@ -94,7 +94,7 @@ export default function VendorRegistration({ navigation }) {
   
     try {
       // Make API call to register vendor
-      const response = await axios.post('http://192.168.0.112:3000/api/vendor/signup', formData);
+      const response = await axios.post('http://localhost:3000/api/vendor/signup', formData);
       Alert.alert('Success', 'Vendor registered successfully');
       navigation.goBack();
     } catch (error) {

@@ -17,7 +17,7 @@ export default function ViewUsers({ navigation }) {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://192.168.0.112:3000/api/user/');
+      const response = await axios.get('http://localhost:3000/api/user/');
       setUsers(response.data);
       setOriginalUsers(response.data);
       setLoading(false);

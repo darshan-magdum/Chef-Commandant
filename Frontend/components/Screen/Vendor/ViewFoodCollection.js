@@ -50,7 +50,7 @@ export default function ViewFoodCollection({ navigation }) {
     const fetchData = async () => {
       try {
         const vendorId = await AsyncStorage.getItem('vendorId');
-        const response = await axios.get(`http://192.168.0.112:3000/api/fooditemroutes/getbyvendor/${vendorId}`)
+        const response = await axios.get(`http://localhost:3000/api/fooditemroutes/getbyvendor/${vendorId}`)
     
         
         // Replace backslashes with forward slashes in image paths
@@ -86,7 +86,7 @@ export default function ViewFoodCollection({ navigation }) {
 
   const handleConfirmDelete = async () => {
     try {
-      await axios.delete(`http://192.168.0.112:3000/api/fooditemroutes/delete/${selectedCollection._id}`);
+      await axios.delete(`http://localhost:3000/api/fooditemroutes/delete/${selectedCollection._id}`);
       const updatedCollections = foodItems.filter(c => c._id !== selectedCollection._id);
       setFoodItems(updatedCollections);
       setDeleteModalVisible(false);
@@ -110,7 +110,7 @@ export default function ViewFoodCollection({ navigation }) {
       };
 
       await axios.put(
-        `http://192.168.0.112:3000/api/fooditemroutes/edit/${selectedCollection._id}`,
+        `http://localhost:3000/api/fooditemroutes/edit/${selectedCollection._id}`,
         updatedCollection
       );
 
@@ -181,7 +181,7 @@ export default function ViewFoodCollection({ navigation }) {
             <View key={collection._id} style={styles.card}>
               {collection.foodImage && (
                 <Image
-                  source={{ uri: `http://192.168.0.112:3000/${collection.foodImage}` }}
+                  source={{ uri: `http://localhost:3000/${collection.foodImage}` }}
                   style={styles.cardImage}
                   resizeMode="cover"
                 />

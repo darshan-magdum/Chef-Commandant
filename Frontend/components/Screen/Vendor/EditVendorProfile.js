@@ -25,7 +25,7 @@ export default function EditVendorProfile({ navigation }) {
     try {
       const vendorId = await AsyncStorage.getItem('vendorId');
       console.log('Fetching vendor details for vendorId:', vendorId);
-      const response = await axios.get(`http://192.168.0.112:3000/api/vendor/vendor/${vendorId}`);
+      const response = await axios.get(`http://localhost:3000/api/vendor/vendor/${vendorId}`);
       console.log('Vendor Details:', response.data);
       if (response.status === 200) {
         const { name, mobile } = response.data;
@@ -68,7 +68,7 @@ export default function EditVendorProfile({ navigation }) {
         setErrors({ ...errors, name: '', mobile: '' });
       }
   
-      const response = await axios.put(`http://192.168.0.112:3000/api/vendor/${vendorId}`, { name, mobile });
+      const response = await axios.put(`http://localhost:3000/api/vendor/${vendorId}`, { name, mobile });
   
       if (response.status === 200) {
         Alert.alert('Profile updated successfully');

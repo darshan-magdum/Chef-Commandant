@@ -45,7 +45,7 @@ export default function UserOrder({ navigation }) {
   const fetchUserData = async () => {
     try {
       const userId = await AsyncStorage.getItem('userId'); // Retrieve user ID from AsyncStorage
-      const response = await axios.get(`http://192.168.0.112:3000/api/user/${userId}`); // Fetch user details using user ID
+      const response = await axios.get(`http://localhost:3000/api/user/${userId}`); // Fetch user details using user ID
       if (response.status === 200) {
         const { name, mobile, email, userId } = response.data;
         setUserDetails({ name, mobile, email, userId });
@@ -59,7 +59,7 @@ export default function UserOrder({ navigation }) {
 
   const fetchBranches = async () => {
     try {
-      const response = await axios.get('http://192.168.0.112:3000/api/branchRoutes/viewallbranch'); // Fetch branches from the API
+      const response = await axios.get('http://localhost:3000/api/branchRoutes/viewallbranch'); // Fetch branches from the API
       if (response.status === 200) {
         setBranches(response.data); // Assuming response data is an array of branch names or objects
       } else {
@@ -138,7 +138,7 @@ export default function UserOrder({ navigation }) {
         date: form.date,
       };
   
-      const response = await axios.post('http://192.168.0.112:3000/api/UserOrdersRoutes/post', payload);
+      const response = await axios.post('http://localhost:3000/api/UserOrdersRoutes/post', payload);
   
       if (response.status === 201) {
         Alert.alert("Order Placed Successfully");

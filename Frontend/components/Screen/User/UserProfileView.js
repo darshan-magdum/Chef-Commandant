@@ -19,7 +19,7 @@ export default function UserViewProfile({ navigation }) {
       const userId = await AsyncStorage.getItem('userId'); // Retrieve user ID from AsyncStorage
       console.log('Fetching user details for userIdaaqq:', userId);
 
-      const response = await axios.get(`http://192.168.0.112:3000/api/user/${userId}`); // Fetch user details using user ID
+      const response = await axios.get(`http://localhost:3000/api/user/${userId}`); // Fetch user details using user ID
       console.log('User Detailshh:', response.data);
 
       if (response.status === 200) {

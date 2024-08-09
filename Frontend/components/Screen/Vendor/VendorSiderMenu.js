@@ -25,7 +25,7 @@ export default function VendorSiderMenu() {
       try {
         const vendorId = await AsyncStorage.getItem('vendorId'); // Retrieve user ID from AsyncStorage
         console.log('Fetching user details for userId:', vendorId);
-        const response = await axios.get(`http://192.168.0.112:3000/api/vendor/vendor/${vendorId}`);  // Fetch user details using user ID
+        const response = await axios.get(`http://localhost:3000/api/vendor/vendor/${vendorId}`);  // Fetch user details using user ID
         console.log('User Detailshh:', response.data);
   
         if (response.status === 200) {
